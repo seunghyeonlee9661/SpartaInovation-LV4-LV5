@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="layout :: head">
+    <!--  헤드 공간  -->
+</head>
+<body>
+<!--  상단바 공간  -->
+<header th:replace="layout :: nav"></header>
+<div class="d-flex py-4 bg-body-tertiary main" style="position:relative;">
+    <div class="container my-5">
+        <div class="col">
+            <!-- 뒤로가기 버튼-->
+            <button id="backButton" class="btn btn-secondary" style="font-size: 18px; position:absolute; top:2%; left:1%" onclick="goBack()">
+                <i class="bi bi-arrow-left-circle-fill me-2"></i> Back
+            </button>
+            <div class="hstack gap-3">
+                <h1 id="lectureTitle" class="p-2 display-5 link-body-emphasis mb-1"></h1>
+                <span class="badge text-bg-info">Lecture</span>
+                <div class="p-1 ">
+                    <a class="btn btn-secondary me-2" onclick="callEditModal()"><i class="bi bi-pencil-square"></i></a>
+                </div>
+                <div class="p-1 ">
+                    <a class="btn btn-secondary me-2" th:id="${id}" th:onclick="deleteLecture(this.getAttribute('id'));"><i class="bi bi-trash3"></i></a>
+                </div>
+            </div>
+            <hr>
+            <div class="hstack gap-3">
+                <p id="lecturePrice" class="p-2 blog-post-meta"></p>
+                <p id="lectureCategory" class="p-2 blog-post-meta"></p>
+                <p id="lectureTeacher" class="p-2 blog-post-meta"></p>
+                <p id="lectureDate" class="p-2 blog-post-meta"></p>
+            </div>
+            <p id="lectureIntroduction" class="p-2 blog-post-meta"></p>
+        </div>
+    </div>
+</div>
+<!-- 수정 모달 -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editLectureForm" class="needs-validation" method="POST" novalidate>
+                    <!-- 강의명 -->
+                    <div class="mb-3 row">
+                        <label for="editLecture_title" class="form-label">강의명</label>
+                        <div class="col">
+                            <input type="text" id="editLecture_title" name="editLecture_title" class="form-control" required>
+                        </div>
+                    </div>
+                    <!-- 가격 -->
+                    <div class="mb-3 row">
+                        <label for="editLecture_price" class="form-label">가격</label>
+                        <div class="col">
+                            <input type="text" id="editLecture_price" name="editLecture_price" class="form-control" maxlength="20" oninput="maxLengthCheck(this)" required>
+                        </div>
+                    </div>
+                    <!-- 소개 -->
+                    <div class="mb-3">
+                        <label for="editLecture_introduction" class="form-label">소개</label>
+                        <textarea type="text" id="editLecture_introduction" name="editLecture_introduction" class="form-control" required></textarea>
+                    </div>
+                    <!-- 카테고리 -->
+                    <div class="mb-3">
+                        <label for="editLecture_category" class="form-label">카테고리</label>
+                        <select id="editLecture_category" name="editLecture_category" class="form-control" required>
+                            <option value="">...</option>
+                            <option value="Spring">Spring</option>
+                            <option value="React">React</option>
+                            <option value="Node">Node</option>
+                        </select>
+                    </div>
+                    <!-- 강사 -->
+                    <div class="mb-3">
+                        <label for="editLecture_teacher" class="form-label">강사</label>
+                        <select id="editLecture_teacher" name="editLecture_teacher" class="form-control" required>
+                            <option value="">...</option>
+                        </select>
+                    </div>
+                </form>
+                <button class="btn btn-danger" style="width:100%"  th:id="${id}" th:onclick="editLecture(this.getAttribute('id'));">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 목록-->
+<div class="b-example-divider"></div>
+<!-- footer -->
+<div th:replace="layout :: footer"></div>
+<script src="/js/script.js" type="text/javascript"></script>
+<script th:inline="javascript">
+    $(document).ready(function() {
+        getLecture("[[${id}]]");
+    });
+
+    function callEditModal() {
+        if (checkRole()) {
+            let myModal = new bootstrap.Modal(document.getElementById('editModal'), {
+                keyboard: false
+            });
+            myModal.show();
+        }
+    }
+</script>
+<!--common script -->
+<th:block th:replace="layout :: scripts"></th:block>
+</body>
+
+</html>

@@ -1,0 +1,70 @@
+.form-signin {
+  max-width: 330px;
+  padding: 1rem;
+}
+
+.form-signin .form-floating:focus-within {
+  z-index: 2;
+}
+
+.b-example-divider {
+  width: 100%;
+  height: 3rem;
+  background-color: rgba(0, 0, 0, .1);
+  border: solid rgba(0, 0, 0, .15);
+  border-width: 1px 0;
+  box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+}
+
+.blog-post-meta {
+  margin-bottom: 1.25rem;
+  color: #727272;
+}
+
+.page-link {
+  color: #000;
+  background-color: #fff;
+}
+
+.page-item.active .page-link {
+ z-index: 1;
+ color: #555;
+ font-weight:bold;
+ background-color: #f1f1f1;
+ border-color: #ccc;
+}
+
+.page-link:focus, .page-link:hover {
+  color: #000;
+  background-color: #fafafa;
+  border-color: #ccc;
+}
+
+.main{
+  min-height:60vh;
+}
+
+.container{
+  @media (min-width: 1200px){
+    max-width: 960px;
+  }
+  height:100vh;
+}
+
+a{
+  text-decoration-line: none;
+}
+
+.input-number-password {
+    -webkit-text-security: disc;
+}
+
+td,
+th{
+overflow:hidden; white-space:nowrap;text-overflow:ellipsis;
+}
+
+.swiper {
+  width: 100%;
+  height: 100%;
+}
