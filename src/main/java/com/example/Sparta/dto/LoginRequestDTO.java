@@ -10,7 +10,7 @@ public class LoginRequestDTO {
 
     @NotNull
     @Email
-    private String email;
+    private String username;
 
     @NotNull
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,15}$", message = "The password must be 8-15 characters long and include at least one letter, one number, and one special character.")

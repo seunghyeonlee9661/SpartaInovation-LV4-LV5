@@ -4,14 +4,12 @@
     <!--  헤드 공간  -->
 </head>
 <body>
-<!--  상단바 공간  -->
-<!--<header th:replace="layout :: nav"></header>-->
-
 <!-- 내용-->
 <div class="d-flex py-4 bg-body-tertiary main">
     <div class="container my-5">
         <!-- 로그인 폼 -->
         <form id="loginForm" class="form-signin w-100 m-auto needs-validation" method="Post" novalidate>
+            <div id="login-failed" style="display: none" class="alert alert-danger" role="alert">로그인에 실패하였습니다.</div>
             <!-- 이메일 -->
             <div class="mb-3">
                 <label for="login_email" class="form-label">이메일</label>
@@ -121,6 +119,12 @@
 </div>
 
 <script src="/js/script.js" type="text/javascript"></script>
+<script>
+    if (location.href.substring(href.indexOf("?")+1) === 'error') {
+      const errorDiv = document.getElementById('login-failed');
+      errorDiv.style.display = 'block';
+    }
+</script>
 
 <th:block th:replace="layout :: scripts"></th:block>
 </body>

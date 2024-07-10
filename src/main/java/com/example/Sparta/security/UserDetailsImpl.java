@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/* Spring Security : 확인된 인증 객체가 담기는 곳*/
 public class UserDetailsImpl implements UserDetails {
 
     private final User user;

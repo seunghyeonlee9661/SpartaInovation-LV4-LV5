@@ -1,3 +1,4 @@
+// 특정 길이 이상 입력되면 자르는 함수
 function maxLengthCheck(object) {
     if (object.value.length > object.maxLength) {
         object.value = object.value.slice(0, object.maxLength); // 최대 길이를 초과한 부분을 잘라냅니다.
@@ -20,7 +21,6 @@ function maxLengthCheck(object) {
    }
    return $.ajax(ajaxOptions);
  }
-
 
 function goBack() { window.history.back(); }
 
@@ -78,3 +78,10 @@ function checkValidity(id) {
     return true;
 }
 
+// 로그아웃
+function logout() {
+  if(confirm("로그아웃 하시겠습니까?")){
+      Cookies.remove('Authorization', { path: '/' });
+      location.href = location.href;
+  }
+}

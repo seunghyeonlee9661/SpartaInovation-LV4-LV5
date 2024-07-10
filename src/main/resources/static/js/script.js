@@ -28,12 +28,18 @@ function login() {
                 'username': $('#login_email').val(),
                 'password': $('#login_password').val()
             })
-            .then(function(response) {
-                alert(response);
+            .done(function(res,status,xhr) {
+                console.log(res);
+                console.log(status);
+                console.log(xhr);
                 location.href = '/';
             })
-            .catch(function(error) {
-                alert(error.responseText);
+            .fail(function (xhr, textStatus, errorThrown) {
+                console.log('statusCode: ' + xhr.status);
+                console.log(xhr);
+                console.log(textStatus);
+                console.log(errorThrown);
+                location.href = '/login?error'
             });
     }
 }
@@ -70,6 +76,7 @@ function addTeacher() {
 function getTeachers() {
     Request('/api/teachers', 'GET', null)
         .then(function(response) {
+            console.log(response)
             var html = '';
             for (var i = 0; i < response.length; i++) {
                 var teacher = response[i];
@@ -85,7 +92,8 @@ function getTeachers() {
             $('#addLecture_teacher').html(selectHtml);
         })
        .catch(function(error) {
-           alert(error);
+            alert('강사 목록을 불러오는 중 오류가 발생했습니다.');
+            console.log(error);
        });
 }
 // 강사 정보 불러오기
@@ -191,6 +199,7 @@ function getLectures(page,category) {
             category: category
         })
         .then(function(response) {
+            console.log(response)
             var html = '';
             for (var i = 0; i < response.content.length; i++) {
                 var lecture = response.content[i];
@@ -205,7 +214,7 @@ function getLectures(page,category) {
             document.querySelector('tbody').innerHTML = html;
             setPagination(response);
         })
-        .catch(function(response) {
+        .catch(function(error) {
             alert('강의 목록을 불러오는 중 오류가 발생했습니다.');
             console.log(error);
         });
@@ -229,7 +238,7 @@ function getLecture(id) {
              $('#editLecture_category').val(response.category);
              getTeacherList(response.teacherid)
         })
-        .catch(function(response) {
+        .catch(function(error) {
             alert('강의 정보를 불러오는 중 오류가 발생했습니다.');
             console.log(error);
         });

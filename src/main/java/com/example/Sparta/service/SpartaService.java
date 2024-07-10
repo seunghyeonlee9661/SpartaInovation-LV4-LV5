@@ -42,7 +42,7 @@ public class SpartaService {
     /* 로그인 */
     public ResponseEntity<String> login(LoginRequestDTO loginRequestDTO, HttpServletResponse res) {
         try {
-            User user = userRepository.findByEmail(loginRequestDTO.getEmail()).orElseThrow(() -> new IllegalArgumentException("등록된 사용자가 없습니다."));
+            User user = userRepository.findByEmail(loginRequestDTO.getUsername()).orElseThrow(() -> new IllegalArgumentException("등록된 사용자가 없습니다."));
             if (!passwordEncoder.matches(loginRequestDTO.getPassword(), user.getPassword())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("비밀번호가 일치하지 않습니다.");
             }
