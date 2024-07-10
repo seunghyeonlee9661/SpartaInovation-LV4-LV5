@@ -3,6 +3,7 @@ import com.example.Sparta.dto.*;
 import com.example.Sparta.entity.Lecture;
 import com.example.Sparta.entity.Teacher;
 import com.example.Sparta.entity.User;
+import com.example.Sparta.enums.LectureCategory;
 import com.example.Sparta.global.JwtUtil;
 import com.example.Sparta.repository.LectureRepository;
 import com.example.Sparta.repository.TeacherRepository;
@@ -129,12 +130,18 @@ public class SpartaService {
 
     /*------------------------강의----------------------------------*/
 
-    /* 강의 목록 불러오기 */
     public Page<LectureResponseDTO> findLectures(int page, String category) {// DB 조회
         Pageable pageable = PageRequest.of(page, 10);
-        Page<Lecture> lectures = (category.isEmpty()) ? lectureRepository.findAll(pageable) : lectureRepository.findByCategoryOrderByRegistDesc(category, pageable);
+        Page<Lecture> lectures;
+        if(category.isEmpty()){
+            lectures = lectureRepository.findAll(pageable);
+        }else{
+            LectureCategory lectureCategory = LectureCategory.valueOf(category);
+            lectures = lectureRepository.findByCategoryOrderByRegistDesc(lectureCategory, pageable);
+        }
         return lectures.map(LectureResponseDTO::new);
     }
+
 
     /* 강의 추가 */
     public ResponseEntity<String> createLecture(LectureRequestDTO lectureRequestDTO){

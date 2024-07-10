@@ -22,8 +22,7 @@ public class SpartaViewController {
 
     /* 메인 */
     @GetMapping("/")
-    public String main(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam(value="page", defaultValue="0") int page, @RequestParam(value="category", defaultValue="") String category, Model model) {
-        model.addAttribute("user",userDetails.getUser());
+    public String main(@RequestParam(value="page", defaultValue="0") int page, @RequestParam(value="category", defaultValue="") String category, Model model) {
         model.addAttribute("page",page);
         model.addAttribute("category",category);
         return "main";

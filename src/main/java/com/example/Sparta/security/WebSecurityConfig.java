@@ -4,9 +4,11 @@ import com.example.Sparta.filter.JwtAuthenticationFilter;
 import com.example.Sparta.filter.JwtAuthorizationFilter;
 import com.example.Sparta.filter.LoginRedirectFilter;
 import com.example.Sparta.global.JwtUtil;
+import com.example.Sparta.global.UserInterceptor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -63,6 +65,15 @@ public class WebSecurityConfig {
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         // '/api/user/'로 시작하는 요청 모두 접근 허가
                         .requestMatchers("/api/user/**").permitAll()
+                        // 메인 페이지 : 허용
+                        .requestMatchers("/").permitAll()
+                        .requestMatchers("/teacher").permitAll()
+                        .requestMatchers("/lecture").permitAll()
+//                      // 강사 목록 불러오는 요청 : 허용
+                        .requestMatchers(HttpMethod.GET, "/api/teacher").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/teachers").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/lecture").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/lectures").permitAll()
                         // 그 외 모든 요청 인증처리
                         .anyRequest().authenticated()
         );

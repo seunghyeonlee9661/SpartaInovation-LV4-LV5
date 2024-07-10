@@ -1,11 +1,12 @@
 package com.example.Sparta.controller;
 
 import com.example.Sparta.dto.*;
+import com.example.Sparta.enums.UserAuthority;
 import com.example.Sparta.service.SpartaService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,14 +25,8 @@ public class SpartaRestController {
         return spartaService.signup(requestDTO);
     }
 
-//    /* 사용자 정보 불러오기 */
-//    @GetMapping("/user")
-//    public UserResponseDTO findUser(HttpServletRequest req) {
-//        return new UserResponseDTO((User) req.getAttribute("user"));
-//    }
-//
 //    /*____________________강의__________________________*/
-//
+
     /* 강의 목록 불러오기 */
     @GetMapping("/lectures")
     public Page<LectureResponseDTO> findLectures(@RequestParam(value="page", defaultValue="0") int page, @RequestParam(value="category", defaultValue="") String category) {
@@ -45,6 +40,7 @@ public class SpartaRestController {
     }
 
     /* 강의 추가 */
+    @Secured(UserAuthority.Authority.ADMIN) // 관리자용
     @PostMapping("/lecture")
     public ResponseEntity<String> createLecture(@RequestBody LectureRequestDTO lectureRequestDTO) {
         return spartaService.createLecture(lectureRequestDTO);
@@ -69,13 +65,14 @@ public class SpartaRestController {
         return spartaService.findTeachers().stream().map(TeacherResponseDTO::new).collect(Collectors.toList());
     }
 
-    /* 강사 목록 불러오기 */
+    /* 강사 정보 불러오기 */
     @GetMapping("/teacher")
     public TeacherResponseDTO findTeacher(@RequestParam("id") int id) {
         return new TeacherResponseDTO(spartaService.findTeacher(id));
     }
 
     /* 강사 추가 */
+    @Secured(UserAuthority.Authority.ADMIN)
     @PostMapping("/teacher")
     public ResponseEntity<String> createTeacher(@RequestBody TeacherRequestDTO teacherRequestDTO) {
         return spartaService.createLecture(teacherRequestDTO);

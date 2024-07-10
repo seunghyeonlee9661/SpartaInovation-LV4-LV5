@@ -30,10 +30,27 @@
             </a>
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                 <li><a th:href="@{/lectures}" class="nav-link px-2" th:classappend="${menu} == 'home' ? 'text-secondary' : 'text-white'">강의</a></li>
-                <li><a th:href="@{/goods}" class="nav-link px-2" th:classappend="${menu} == 'posts' ? 'text-secondary' : 'text-white'">굿즈</a></li>
-            </ul>
-            <div class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
-                <a class="nav-link px-2" onclick="logout()"><i class="bi bi-box-arrow-left"></i></a>
+                <li><a th:href="@{/goods}" class="nav-link px-2" th:classappend="${menu} == 'posts' ? 'text-secondary' : 'text-white'">굿즈</a></li>            </ul>
+
+            <div th:if="${user != null}" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+                <div class="row">
+                    <div class="col">
+                        <span class="badge" th:classappend="${user.authority.name()} == 'ADMIN' ? 'text-bg-success' : 'text-bg-warning'" th:text="${user.authority}"></span>
+                    </div>
+                    <div class="col">
+                        <a class="nav-link px-2" onclick="logout()"><i class="bi bi-box-arrow-left"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${user == null}" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+                <div class="row">
+                    <div class="col">
+                        <span class="badge badge-secondary col">GUEST</span>
+                    </div>
+                    <div class="col">
+                        <a th:href="@{/login}" class="nav-link px-2 col"><i class="bi bi-box-arrow-in-right"></i></a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
