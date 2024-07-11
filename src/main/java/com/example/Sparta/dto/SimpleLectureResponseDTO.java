@@ -5,28 +5,22 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
-public class LectureResponseDTO {
+public class SimpleLectureResponseDTO {
     private int id;
     private String title;
     private int price;
     private String introduction;
     private LectureCategory category;
     private LocalDateTime regist;
-    private SimpleTeacherResponseDTO teacher;
-    private List<SimpleCommentResponseDTO> comments;
 
-    public LectureResponseDTO(Lecture lecture){
+    public SimpleLectureResponseDTO(Lecture lecture){
         this.id = lecture.getId();
         this.title = lecture.getTitle();
         this.price = lecture.getPrice();
         this.introduction = lecture.getIntroduction();
         this.category = lecture.getCategory();
-        this.teacher = new SimpleTeacherResponseDTO(lecture.getTeacher());
         this.regist = lecture.getRegist();
-        this.comments = lecture.getComments().stream().map(SimpleCommentResponseDTO::new).collect(Collectors.toList());
     }
 }

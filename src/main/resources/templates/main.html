@@ -184,19 +184,19 @@
 <script src="/js/script.js" type="text/javascript"></script>
 <script>
     $(document).ready(function() {
-        getTeachers();
-        getLectures("[[${page}]]","[[${category}]]");
-    });
+       getTeachers();
+       getLectures("[[${page}]]","[[${category}]]");
+   });
 
-    // 카테고리 조회 기능
-    const category_elements = document.getElementsByClassName("category");
-    Array.from(category_elements).forEach(function(element) {
-        element.addEventListener('click', function() {
-            document.getElementById('category').value = this.dataset.category ? this.dataset.category : '';
-            document.getElementById('page').value = '0';
-            document.getElementById('searchForm').submit();
-        });
-    });
+   // 카테고리 조회 기능
+   const category_elements = document.getElementsByClassName("category");
+   Array.from(category_elements).forEach(function(element) {
+       element.addEventListener('click', function() {
+           document.getElementById('category').value = this.dataset.category ? this.dataset.category : '';
+           document.getElementById('page').value = '0';
+           document.getElementById('searchForm').submit();
+       });
+   });
 </script>
 
 <!--common script -->

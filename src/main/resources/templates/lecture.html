@@ -17,7 +17,7 @@
                 <h1 id="lectureTitle" class="p-2 display-5 link-body-emphasis mb-1"></h1>
                 <span class="badge text-bg-info">Lecture</span>
                 <div class="p-1 ">
-                    <a class="btn btn-secondary me-2" onclick="callEditModal()"><i class="bi bi-pencil-square"></i></a>
+                    <a class="btn btn-secondary me-2" onclick="callEditLectureModal()"><i class="bi bi-pencil-square"></i></a>
                 </div>
                 <div class="p-1 ">
                     <a class="btn btn-secondary me-2" th:id="${id}" th:onclick="deleteLecture(this.getAttribute('id'));"><i class="bi bi-trash3"></i></a>
@@ -31,6 +31,12 @@
                 <p id="lectureDate" class="p-2 blog-post-meta"></p>
             </div>
             <p id="lectureIntroduction" class="p-2 blog-post-meta"></p>
+
+            <!-- 댓글 섹션 -->
+            <div id="commentsSection" class="mt-5">
+                <h3>Comments</h3>
+                <div id="commentsList"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -96,15 +102,6 @@
     $(document).ready(function() {
         getLecture("[[${id}]]");
     });
-
-    function callEditModal() {
-        if (checkRole()) {
-            let myModal = new bootstrap.Modal(document.getElementById('editModal'), {
-                keyboard: false
-            });
-            myModal.show();
-        }
-    }
 </script>
 <!--common script -->
 <th:block th:replace="layout :: scripts"></th:block>

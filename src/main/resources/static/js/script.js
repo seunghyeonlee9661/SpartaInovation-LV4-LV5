@@ -12,11 +12,17 @@ function signup() {
             'authority': $(":input:radio[name=authority]:checked").val()
         })
         .then(function(response) {
-            alert(response);
-            location.href = "/login";
+            if (response.status === 200) {
+                location.href = "/login";
+            } else {
+                alert(response.message);
+            }
         })
-        .catch(function(error) {
-            alert(error);
+        .catch(function(xhr, status, error) {
+            console.log(xhr)
+            console.log(status)
+            console.log(error)
+            alert('서버 오류가 발생했습니다.');
         });
     }
 }
@@ -29,33 +35,25 @@ function login() {
                 'password': $('#login_password').val()
             })
             .done(function(res,status,xhr) {
-                console.log(res);
-                console.log(status);
-                console.log(xhr);
-                location.href = '/';
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                console.log('statusCode: ' + xhr.status);
-                console.log(xhr);
-                console.log(textStatus);
-                console.log(errorThrown);
-                location.href = '/login?error'
-            });
+                  if(status == "success") {
+                    alert("로그인 성공")
+                    location.href = '/';
+                  }
+              })
+            .fail(function(xhr, textStatus, errorThrown) {
+                   console.log('statusCode: ' + xhr.status);
+                   console.log(xhr);
+                   console.log(textStatus);
+                   console.log(errorThrown);
+                   location.href = '/login?error'
+               });
     }
-}
-// 로그아웃
-function logoutRequest() {
-  if(confirm("로그아웃 하시겠습니까?")){
-      Cookies.remove('Authorization', { path: '/' });
-      location.href = location.href;
-  }
 }
 
 //_______________강사_______________________
 // 강사 추가
 function addTeacher() {
-    let form = document.getElementById('addTeacherForm');
-    if (checkValidity(form)) {
+    if (checkValidity('addTeacherForm')) {
         Request('/api/teacher', 'POST', {
                 'name': $('#addTeacher_name').val(),
                 'year': $('#addTeacher_year').val(),
@@ -64,37 +62,46 @@ function addTeacher() {
                 'introduction': $('#addTeacher_introduction').val()
             })
             .then(function(response) {
-                alert('강사가 추가되었습니다.');
-                location.href = location.href;
+                if (response.status === 200) {
+                    alert(response.message);
+                    location.href = location.href;
+                } else {
+                    alert(response.message);
+                }
             })
-            .catch(function(error) {
-                alert(error.responseText);
-            });
+            .catch(function(xhr, status, error) {
+                console.log(xhr)
+                console.log(status)
+                console.log(error)
+                alert('서버 오류가 발생했습니다.');
+            })
     }
 }
 // 강사 목록 불러오기
 function getTeachers() {
     Request('/api/teachers', 'GET', null)
         .then(function(response) {
-            console.log(response)
+            let teachers = response.data;
             var html = '';
-            for (var i = 0; i < response.length; i++) {
-                var teacher = response[i];
+            for (var i = 0; i < teachers.length; i++) {
+                var teacher = teachers[i];
                 html += '<li><a href="/teacher/' + teacher.id + '">' + teacher.name + '</a></li>';
             }
             $('.vertical-menu').html(html);
 
             var selectHtml = '<option value="">...</option>';
-            for (var i = 0; i < response.length; i++) {
-                var teacher = response[i];
+            for (var i = 0; i < teachers.length; i++) {
+                var teacher = teachers[i];
                 selectHtml += '<option value="' + teacher.id + '">' + teacher.name + '</option>';
             }
             $('#addLecture_teacher').html(selectHtml);
         })
-       .catch(function(error) {
-            alert('강사 목록을 불러오는 중 오류가 발생했습니다.');
-            console.log(error);
-       });
+       .catch(function(xhr, status, error) {
+           console.log(xhr)
+           console.log(status)
+           console.log(error)
+           alert('서버 오류가 발생했습니다.');
+       })
 }
 // 강사 정보 불러오기
 function getTeacher(id) {
@@ -102,35 +109,39 @@ function getTeacher(id) {
           id: id,
         })
         .then(function(response) {
-            $('#teacher-name').text(response.name);
-            $('#teacher-year').text(response.year);
-            $('#teacher-company').text(response.company);
-            $('#teacher-phone').text(response.phone);
-            $('#teacher-introduction').text(response.introduction);
+            if (response.status === 200) {
+                let teacher = response.data;
+                $('#teacher-name').text(teacher.name);
+                $('#teacher-year').text(teacher.year);
+                $('#teacher-company').text(teacher.company);
+                $('#teacher-phone').text(teacher.phone);
+                $('#teacher-introduction').text(teacher.introduction);
 
-            $('#editTeacher_name').val(response.name);
-            $('#editTeacher_year').val(response.year);
-            $('#editTeacher_company').val(response.company);
-            var phone = response.phone;
-            $('#editTeacher_phone1').val(phone.substring(0, 3));
-            $('#editTeacher_phone2').val(phone.substring(3, 7));
-            $('#editTeacher_phone3').val(phone.substring(7, 11));
-            $('#editTeacher_introduction').val(response.introduction);
+                $('#editTeacher_name').val(teacher.name);
+                $('#editTeacher_year').val(teacher.year);
+                $('#editTeacher_company').val(teacher.company);
+                var phone = teacher.phone;
+                $('#editTeacher_phone1').val(phone.substring(0, 3));
+                $('#editTeacher_phone2').val(phone.substring(3, 7));
+                $('#editTeacher_phone3').val(phone.substring(7, 11));
+                $('#editTeacher_introduction').val(teacher.introduction);
 
-            // 강의 목록 업데이트
-            var lectureList = $('#lecture-list');
-            lectureList.empty();  // 기존 목록 제거
+                // 강의 목록 업데이트
+                var lectureList = $('#lecture-list');
+                lectureList.empty();  // 기존 목록 제거
 
-            response.lectures.forEach(function(lecture) {
-                var lectureItem = $('<li></li>');
-                var lectureLink = $('<a></a>').attr('href', '/lecture/' + lecture.id).addClass('lecture-link');
-                var lectureTitle = $('<span></span>').addClass('lecture-title').text(lecture.title);
-                var lectureCategory = $('<span></span>').addClass('lecture-category').text(lecture.category);
-
-                lectureLink.append(lectureTitle).append(lectureCategory);
-                lectureItem.append(lectureLink);
-                lectureList.append(lectureItem);
-            });
+                teacher.lectures.forEach(function(lecture) {
+                    var lectureItem = $('<li></li>');
+                    var lectureLink = $('<a></a>').attr('href', '/lecture/' + lecture.id).addClass('lecture-link');
+                    var lectureTitle = $('<span></span>').addClass('lecture-title').text(lecture.title);
+                    var lectureCategory = $('<span></span>').addClass('lecture-category').text(lecture.category);
+                    lectureLink.append(lectureTitle).append(lectureCategory);
+                    lectureItem.append(lectureLink);
+                    lectureList.append(lectureItem);
+                });
+            } else {
+                alert(response.message);
+            }
         })
         .catch(function(error) {
             alert(error);
@@ -141,13 +152,17 @@ function deleteTeacher(id) {
     if (checkRole()) {
         if (confirm('삭제하시겠습니까?')) {
             Request('/api/teacher?id=' + id, 'DELETE', null)
-                .then(function(response) {
-                    alert('강사가 삭제되었습니다.');
-                    window.location.href = '/backoffice/main';
-                })
-                .catch(function(error) {
-                    alert(error.responseText);
-                });
+            .then(function(response) {
+                if (response.status === 200) {
+                    alert(response.message);
+                    window.location.href = '/';
+                } else {
+                    alert(response.message);
+                }
+            })
+            .catch(function(error) {
+                alert(error.responseText);
+            });
         }
     }
 }
@@ -163,8 +178,12 @@ function editTeacher(id) {
                 'introduction': $('#editTeacher_introduction').val()
             })
             .then(function(response) {
-                alert('강사 정보가 수정되었습니다.');
-                location.href = location.href;
+                if (response.status === 200) {
+                    alert(response.message);
+                    location.href = location.href;
+                } else {
+                    alert(response.message);
+                }
             })
             .catch(function(error) {
                 alert(error.responseText);
@@ -174,8 +193,7 @@ function editTeacher(id) {
 //_______________강의_______________________
 // 강의 추가
 function addLecture() {
-    let form = document.getElementById('addLectureForm');
-    if (checkValidity(form)) {
+    if (checkValidity('addLectureForm')) {
         Request('/api/lecture', 'POST', {
                 'title': $('#addLecture_title').val(),
                 'price': $('#addLecture_price').val(),
@@ -184,8 +202,12 @@ function addLecture() {
                 'teacher_id': $('#addLecture_teacher').val()
             })
             .then(function(response) {
-                alert('강의가 추가되었습니다.');
-                location.href = location.href;
+                if (response.status === 200) {
+                    alert(response.message);
+                    location.href = location.href;
+                } else {
+                    alert(response.message);
+                }
             })
             .catch(function(error) {
                 alert(error.responseText);
@@ -199,65 +221,80 @@ function getLectures(page,category) {
             category: category
         })
         .then(function(response) {
-            console.log(response)
-            var html = '';
-            for (var i = 0; i < response.content.length; i++) {
-                var lecture = response.content[i];
-                html += '<tr>';
-                html += '<td><a href="/lecture/' + lecture.id + '">' + lecture.title + '</a></td>';
-                html += '<td>' + lecture.price + '</td>';
-                html += '<td>' + lecture.teachername + '</td>';
-                html += '<td>' + lecture.category + '</td>';
-                html += '<td>' + getFormattedDate(lecture.regist) + '</td>';
-                html += '</tr>';
+            if (response.status === 200) {
+                let lectures = response.data;
+                var html = '';
+                for (var i = 0; i < lectures.content.length; i++) {
+                    var lecture = lectures.content[i];
+                    html += '<tr>';
+                    html += '<td><a href="/lecture/' + lecture.id + '">' + lecture.title + '</a></td>';
+                    html += '<td>' + lecture.price + '</td>';
+                    html += '<td>' + lecture.teacher.name + '</td>';
+                    html += '<td>' + lecture.category + '</td>';
+                    html += '<td>' + getFormattedDate(lecture.regist) + '</td>';
+                    html += '</tr>';
+                }
+                document.querySelector('tbody').innerHTML = html;
+                setPagination(lectures);
+            } else {
+                alert(response.message);
             }
-            document.querySelector('tbody').innerHTML = html;
-            setPagination(response);
         })
         .catch(function(error) {
             alert('강의 목록을 불러오는 중 오류가 발생했습니다.');
             console.log(error);
         });
 }
-// 강의 목록 불러오기
+// 강의 정보 불러오기
 function getLecture(id) {
     Request('/api/lecture', 'GET', {
           id: id,
         })
         .then(function(response) {
-           $('#lectureTitle').text(response.title);
-           $('#lecturePrice').text(response.price);
-           $('#lectureCategory').text(response.category);
-           $('#lectureTeacher').text(response.teachername);
-           $('#lectureDate').text(getFormattedDate(response.regist));
-           $('#lectureIntroduction').text(response.introduction);
+            if (response.status === 200) {
+                alert(response.message);
+                // 강의 정보 작성
+                let lecture = response.data;
+                $('#lectureTitle').text(lecture.title);
+                $('#lecturePrice').text(lecture.price);
+                $('#lectureCategory').text(lecture.category);
+                $('#lectureTeacher').text(lecture.teacher.name);
+                $('#lectureDate').text(getFormattedDate(lecture.regist));
+                $('#lectureIntroduction').text(lecture.introduction);
 
-            $('#editLecture_title').val(response.title);
-             $('#editLecture_price').val(response.price);
-             $('#editLecture_introduction').val(response.introduction);
-             $('#editLecture_category').val(response.category);
-             getTeacherList(response.teacherid)
+                console.log(response.data);
+
+            } else {
+                alert(response.message);
+            }
         })
         .catch(function(error) {
             alert('강의 정보를 불러오는 중 오류가 발생했습니다.');
             console.log(error);
         });
 }
+
+
+
 // 강의 수정을 위한 강사 목록 불러오기
-function getTeacherList(id) {
+function getTeacherList() {
     Request('/api/teachers', 'GET', null)
         .then(function(response) {
-            var teacherSelect = $('#editLecture_teacher');
-            teacherSelect.empty(); // 기존 옵션들을 모두 지움
-            $.each(response, function(index, teacher) {
-                var option = $('<option></option>')
-                    .attr('value', teacher.id)
-                    .text(teacher.name);
-                if (teacher.id === id) {
-                    option.attr('selected', 'selected'); // 기본 선택 항목 설정
-                }
-                teacherSelect.append(option);
-            });
+            if (response.status === 200) {
+                var teacherSelect = $('#editLecture_teacher');
+                teacherSelect.empty(); // 기존 옵션들을 모두 지움
+                $.each(response.data, function(index, teacher) {
+                    var option = $('<option></option>')
+                        .attr('value', teacher.id)
+                        .text(teacher.name);
+                    if (teacher.id === id) {
+                        option.attr('selected', 'selected'); // 기본 선택 항목 설정
+                    }
+                    teacherSelect.append(option);
+                });
+            } else {
+                alert(response.message);
+            }
         })
         .catch(function(response) {
             alert('강사 목록을 불러오는 중 오류가 발생했습니다.');
@@ -269,20 +306,40 @@ function deleteLecture(id) {
     if (checkRole()) {
       if (confirm('삭제하시겠습니까?')) {
           Request('/api/lecture?id=' + id, 'DELETE', null)
-              .then(function(response) {
-                  alert('강의가 삭제되었습니다.');
-                  window.location.href = '/main';
-              })
-              .catch(function(error) {
-                  alert(error.responseText);
-              });
+          .then(function(response) {
+                if (response.status === 200) {
+                    alert(response.message);
+                     window.location.href = '/main';
+                } else {
+                    alert(response.message);
+                }
+          })
+          .catch(function(error) {
+              alert(error.responseText);
+          });
       }
+    }
+}
+
+// 수정 모달 열기 함수
+function callEditLectureModal() {
+    if (checkRole()) {
+        // 강의 수정 모달에 값 설정
+        $('#editLecture_title').val($('#lectureTitle').text());
+        $('#editLecture_price').val($('#lecturePrice').text());
+        $('#editLecture_introduction').val($('#lectureIntroduction').text());
+        $('#editLecture_category').val($('#lectureCategory').text());
+        getTeacherList();
+        // 모달 열기
+        let myModal = new bootstrap.Modal(document.getElementById('editModal'), {
+            keyboard: false
+        });
+        myModal.show();
     }
 }
 // 강의 수정
 function editLecture(id) {
-    let form = document.getElementById('editLectureForm');
-    if (checkValidity(form)) {
+    if (checkValidity('editLectureForm')) {
         Request('/api/lecture?id='+id, 'PUT', {
                 'title': $('#editLecture_title').val(),
                 'price': $('#editLecture_price').val(),
@@ -291,15 +348,79 @@ function editLecture(id) {
                 'teacher_id': $('#editLecture_teacher').val()
             })
             .then(function(response) {
-                alert('강의 정보가 수정되었습니다.');
-                location.href = location.href;
+                if (response.status === 200) {
+                    alert(response.message);
+                    location.href = location.href;
+                } else {
+                    alert(response.message);
+                }
             })
             .catch(function(error) {
                 alert(error.responseText);
             });
     }
 }
-//_______________강사__________________________
+//_______________댓글__________________________
+// 댓글 추가
+function addComment(lecture_id,user_id,text) {
+    if (checkValidity('addLectureForm')) {
+        Request('/api/comment', 'POST', {
+                'lecture_id': lecture_id,
+                'user_id': user_id,
+                'text': $('#addComment_text').val(),
+            })
+            .then(function(response) {
+                if (response.status === 200) {
+                    alert(response.message);
+                    location.href = location.href;
+                } else {
+                    alert(response.message);
+                }
+            })
+            .catch(function(error) {
+                alert(error.responseText);
+            });
+    }
+}
+// 댓글 삭제
+function deleteComment(id) {
+    if (checkRole()) {
+      if (confirm('삭제하시겠습니까?')) {
+          Request('/api/comment?id=' + id, 'DELETE', null)
+          .then(function(response) {
+                if (response.status === 200) {
+                    alert(response.message);
+                     window.location.href = '/main';
+                } else {
+                    alert(response.message);
+                }
+          })
+          .catch(function(error) {
+              alert(error.responseText);
+          });
+      }
+    }
+}
+// 댓글 수정
+function editComment(id) {
+    if (checkValidity('editLectureForm')) {
+        Request('/api/comment?id='+id, 'PUT', {
+                'text': $('#addComment_text').val()
+            })
+            .then(function(response) {
+                if (response.status === 200) {
+                    alert(response.message);
+                    location.href = location.href;
+                } else {
+                    alert(response.message);
+                }
+            })
+            .catch(function(error) {
+                alert(error.responseText);
+            });
+    }
+}
+//_______________댓글__________________________
 
 // 사용자 권한 확인
 function checkRole(){

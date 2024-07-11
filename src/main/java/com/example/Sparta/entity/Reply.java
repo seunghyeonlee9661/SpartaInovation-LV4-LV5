@@ -13,7 +13,7 @@ public class Reply {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id", nullable = false, columnDefinition = "int")
-    private long id;
+    private int id;
 
     @ManyToOne
     @JoinColumn(name="comment_id", nullable = false)

@@ -1,10 +1,12 @@
 package com.example.Sparta.service;
 import com.example.Sparta.dto.*;
+import com.example.Sparta.entity.Comment;
 import com.example.Sparta.entity.Lecture;
 import com.example.Sparta.entity.Teacher;
 import com.example.Sparta.entity.User;
 import com.example.Sparta.enums.LectureCategory;
 import com.example.Sparta.global.JwtUtil;
+import com.example.Sparta.repository.CommentRepository;
 import com.example.Sparta.repository.LectureRepository;
 import com.example.Sparta.repository.TeacherRepository;
 import com.example.Sparta.repository.UserRepository;
@@ -17,8 +19,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -27,149 +31,178 @@ public class SpartaService {
     private final UserRepository userRepository;
     private final TeacherRepository teacherRepository;
     private final LectureRepository lectureRepository;
+    private final CommentRepository commentRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     @Autowired
-    public SpartaService(UserRepository userRepository, TeacherRepository teacherRepository, LectureRepository lectureRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public SpartaService(UserRepository userRepository, TeacherRepository teacherRepository, LectureRepository lectureRepository, CommentRepository commentRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.teacherRepository = teacherRepository;
         this.lectureRepository = lectureRepository;
+        this.commentRepository = commentRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
     /*----------------------회원정보--------------------------------*/
 
-    /* 로그인 */
-    public ResponseEntity<String> login(LoginRequestDTO loginRequestDTO, HttpServletResponse res) {
-        try {
-            User user = userRepository.findByEmail(loginRequestDTO.getUsername()).orElseThrow(() -> new IllegalArgumentException("등록된 사용자가 없습니다."));
-            if (!passwordEncoder.matches(loginRequestDTO.getPassword(), user.getPassword())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("비밀번호가 일치하지 않습니다.");
-            }
-            /* 사용자 이메일, 사용자 역할 기반으로 토큰 생성 */
-            String token = jwtUtil.createToken(user.getEmail(),user.getAuthority());
-            /* 쿠키에 토큰 저장 */
-            jwtUtil.addJwtToCookie(token, res);
-            return ResponseEntity.ok().body("로그인 성공");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     /* 회원가입 */
-    public ResponseEntity<String> signup(UserRequestDTO userRequestDTO){
+    @Transactional
+    public ResponseDTO  signup(UserRequestDTO userRequestDTO){
         try {
             if (userRepository.findByEmail(userRequestDTO.getEmail()).isPresent()) throw new IllegalArgumentException("중복된 Email 입니다.");
             User user = new User(userRequestDTO,passwordEncoder.encode(userRequestDTO.getPassword()));
             userRepository.save(user);
-            return ResponseEntity.ok("회원가입이 완료되었습니다.");
-        }catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return new ResponseDTO(HttpStatus.OK.value(), "회원가입 완료", null);
         }catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
         }
     }
 
     /*------------------------강사----------------------------------*/
 
     /* 강사 목록 불러오기 */
-    public List<Teacher> findTeachers() {
-        return teacherRepository.findAll();
+    public ResponseDTO findTeachers() {
+        List<Teacher> teachers = teacherRepository.findAll();
+        return new ResponseDTO(HttpStatus.OK.value(), "강사 목록 조회",teachers.stream().map(TeacherResponseDTO::new).toList());
     }
-
-    /* 강사 추가 */
-    public ResponseEntity<String> createLecture(TeacherRequestDTO teacherRequestDTO){
-        try {
-            teacherRepository.save(new Teacher(teacherRequestDTO));
-            return ResponseEntity.ok("강사가 추가되었습니다.");
-        }catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-
-        }catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    
+    /* 강사 정보 불러오기 : 사용자 아이디 */
+    public ResponseDTO findTeacher(int id) {// DB 조회
+        try{
+            Teacher teacher = teacherRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No Teacher"));
+            return new ResponseDTO(HttpStatus.OK.value(), "강사 정보 호출", new TeacherResponseDTO(teacher));
+        }catch (Exception e){
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
         }
     }
 
-    /* 강사 정보 불러오기 */
-    public Teacher findTeacher(int id) {// DB 조회
-        return teacherRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No Teacher"));
-    }
-
-    /* 강사 삭제 */
-    public ResponseEntity<String> removeTeacher(int id){
+    /* 강사 추가 */
+    @Transactional
+    public ResponseDTO createLecture(TeacherRequestDTO teacherRequestDTO){
         try {
-            Optional<Teacher> optionalTeacher = teacherRepository.findById(id);
-            if(optionalTeacher.isPresent()){
-                teacherRepository.delete(optionalTeacher.get());
-                return ResponseEntity.ok("강사가 삭제되었습니다.");
-            }else{
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("강사가 존재하지 않습니다.");
-            }
-        }catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-
-        }catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            teacherRepository.save(new Teacher(teacherRequestDTO));
+            return new ResponseDTO(HttpStatus.OK.value(), "강사 정보가 추가되었습니다", null);
+        }catch (Exception e){
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
         }
     }
 
     /* 강사 수정 */
-    public ResponseEntity<String> updateTeacher(int id, TeacherRequestDTO teacherRequestDTO) {
+    @Transactional
+    public ResponseDTO updateTeacher(int id, TeacherRequestDTO teacherRequestDTO) {
         try {
             Teacher teacher = teacherRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("강사가 존재하지 않습니다."));
             teacher.update(teacherRequestDTO);
-            teacherRepository.save(teacher);
-            return ResponseEntity.ok("강사가 수정되었습니다.");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return new ResponseDTO(HttpStatus.OK.value(), "강사 정보가 수정되었습니다", null);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
         }
     }
+
+    /* 강사 삭제 */
+    @Transactional
+    public ResponseDTO removeTeacher(int id){
+        try {
+            Teacher teacher = teacherRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("강사가 존재하지 않습니다."));
+            teacherRepository.delete(teacher);
+            return new ResponseDTO(HttpStatus.OK.value(), "강사 정보가 삭제되었습니다", null);
+        } catch (Exception e) {
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
+        }
+    }
+
 
     /*------------------------강의----------------------------------*/
 
-    public Page<LectureResponseDTO> findLectures(int page, String category) {// DB 조회
+    /* 강의 목록 불러오기 : 페이지, 카테고리 */
+    public ResponseDTO findLectures(int page, String category) {// DB 조회
         Pageable pageable = PageRequest.of(page, 10);
-        Page<Lecture> lectures;
+        Page<LectureResponseDTO> lectures;
         if(category.isEmpty()){
-            lectures = lectureRepository.findAll(pageable);
+            lectures =  lectureRepository.findAll(pageable).map(LectureResponseDTO::new);
         }else{
             LectureCategory lectureCategory = LectureCategory.valueOf(category);
-            lectures = lectureRepository.findByCategoryOrderByRegistDesc(lectureCategory, pageable);
+            lectures =  lectureRepository.findByCategoryOrderByRegistDesc(lectureCategory, pageable).map(LectureResponseDTO::new);
         }
-        return lectures.map(LectureResponseDTO::new);
+        return new ResponseDTO(HttpStatus.OK.value(), "강의 목록 검색 완료", lectures);
+    }
+    
+    /* 강의 정보 불러오기 */
+    public ResponseDTO findLecture(int id) {// DB 조회
+        try{
+            Lecture lecture = lectureRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No Lecture"));
+            return new ResponseDTO(HttpStatus.OK.value(), "강의 정보 검색 완료", new LectureResponseDTO(lecture));
+        } catch (Exception e) {
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
+        }
     }
 
-
     /* 강의 추가 */
-    public ResponseEntity<String> createLecture(LectureRequestDTO lectureRequestDTO){
+    @Transactional
+    public ResponseDTO createLecture(LectureRequestDTO lectureRequestDTO){
         try {
             Teacher teacher = teacherRepository.findById(lectureRequestDTO.getTeacher_id()).orElseThrow(() -> new IllegalArgumentException("강사가 존재하지 않습니다."));
             Lecture lecture = new Lecture(lectureRequestDTO, teacher);
             lectureRepository.save(lecture);
-            return ResponseEntity.ok("강의가 추가되었습니다.");
-        }catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-
-        }catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return new ResponseDTO(HttpStatus.OK.value(), "강의 정보 생성 완료", new LectureResponseDTO(lecture));
+        } catch (Exception e) {
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
         }
     }
 
-    /* 강의 정보 불러오기 */
-    public Lecture findLecture(int id) {// DB 조회
-        return lectureRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No Lecture"));
-    }
-
     /* 강의 수정 */
-    public ResponseEntity<String> updateLecture(int id, LectureRequestDTO lectureRequestDTO){
+    @Transactional
+    public ResponseDTO updateLecture(int id, LectureRequestDTO lectureRequestDTO){
         try {
             Teacher teacher = teacherRepository.findById(lectureRequestDTO.getTeacher_id()).orElseThrow(() -> new IllegalArgumentException("강사가 존재하지 않습니다."));
             Lecture lecture = lectureRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("강의가 존재하지 않습니다."));
             lecture.update(lectureRequestDTO, teacher);
-            lectureRepository.save(lecture); // 업데이트된 강의 저장
+            return new ResponseDTO(HttpStatus.OK.value(), "강의 정보 수정 완료", new LectureResponseDTO(lecture));
+        } catch (Exception e) {
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
+        }
+    }
+
+    /* 강의 삭제 */
+    @Transactional
+    public ResponseDTO removeLecture(int id){
+        try {
+            Lecture lecture = lectureRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("강의가 존재하지 않습니다."));
+            lectureRepository.delete(lecture);
+            return new ResponseDTO(HttpStatus.OK.value(), "강의 정보 삭제 완료", new LectureResponseDTO(lecture));
+        } catch (Exception e) {
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
+        }
+    }
+
+    /*------------------------댓글----------------------------------*/
+
+    /* 댓글 목록 불러오기 */
+    public List<Comment> findComments(int id) {// DB 조회
+        return commentRepository.findAllById(id);
+    }
+
+    /* 댓글 추가 */
+    @Transactional
+    public ResponseDTO createComment(CommentRequestDTO commentRequestDTO){
+        try {
+            Lecture lecture = lectureRepository.findById(commentRequestDTO.getLecture_id()).orElseThrow(() -> new IllegalArgumentException("강의가 존재하지 않습니다."));
+            User user = userRepository.findById(commentRequestDTO.getUser_id()).orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+            Comment comment = new Comment(lecture,user,commentRequestDTO.getText());
+            commentRepository.save(comment);
+            return new ResponseDTO(HttpStatus.OK.value(), "댓글 추가 완료", new LectureResponseDTO(lecture));
+        } catch (Exception e) {
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
+        }
+    }
+
+    /* 댓글 수정 */
+    @Transactional
+    public ResponseEntity<String> updateComment(int id, CommentRequestDTO commentRequestDTO){
+        try {
+            Comment comment = commentRepository.findById(id).orElseThrow(()-> new NoSuchElementException("댓글이 존재하지 않습니다."));
+            comment.update(commentRequestDTO.getText());
             return ResponseEntity.ok("강의가 수정되었습니다.");
         }catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -179,16 +212,13 @@ public class SpartaService {
         }
     }
 
-    /* 강의 삭제 */
-    public ResponseEntity<String> removeLecture(int id){
+    /* 댓글 삭제 */
+    @Transactional
+    public ResponseEntity<String> removeComment(int id){
         try {
-            Optional<Lecture> optionalLecture = lectureRepository.findById(id);
-            if(optionalLecture.isPresent()){
-                lectureRepository.delete(optionalLecture.get());
-                return ResponseEntity.ok("강의가 삭제되었습니다.");
-            }else{
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("강의가 존재하지 않습니다.");
-            }
+            Comment comment = commentRepository.findById(id).orElseThrow(()-> new NoSuchElementException("댓글이 존재하지 않습니다."));
+            commentRepository.delete(comment);
+            return ResponseEntity.ok("강의가 삭제되었습니다.");
         }catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 
@@ -196,4 +226,5 @@ public class SpartaService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 }

@@ -31,14 +31,12 @@ public class SpartaViewController {
     /* 강의 페이지 */
     @GetMapping("/lecture/{id}")
     public String lecture(Model model,@PathVariable("id") int id) {
-        model.addAttribute("menu","backoffice");
         return "lecture";
     }
 
     /* 강사 페이지 */
     @GetMapping("/teacher/{id}")
     public String teacher(Model model,@PathVariable("id") int id) {
-        model.addAttribute("menu","backoffice");
         return "teacher";
     }
 }

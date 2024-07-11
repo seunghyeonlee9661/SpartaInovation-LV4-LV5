@@ -36,14 +36,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             // JWT 토큰 substring
             tokenValue = jwtUtil.substringToken(tokenValue);
             log.info(tokenValue);
-
-            if (!jwtUtil.validateToken(tokenValue)) {
+            if (!jwtUtil.validateToken(tokenValue,res)) {
                 log.error("Token Error");
                 return;
             }
-
             Claims info = jwtUtil.getUserInfoFromToken(tokenValue);
-
             try {
                 setAuthentication(info.getSubject());
             } catch (Exception e) {
@@ -51,7 +48,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 return;
             }
         }
-
         filterChain.doFilter(req, res);
     }
 
@@ -60,7 +56,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         Authentication authentication = createAuthentication(username);
         context.setAuthentication(authentication);
-
         SecurityContextHolder.setContext(context);
     }
 
