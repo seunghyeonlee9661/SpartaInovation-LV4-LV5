@@ -17,7 +17,7 @@ public class LectureResponseDTO {
     private LectureCategory category;
     private LocalDateTime regist;
     private SimpleTeacherResponseDTO teacher;
-    private List<SimpleCommentResponseDTO> comments;
+    private List<CommentResponseDTO> comments;
 
     public LectureResponseDTO(Lecture lecture){
         this.id = lecture.getId();
@@ -27,6 +27,6 @@ public class LectureResponseDTO {
         this.category = lecture.getCategory();
         this.teacher = new SimpleTeacherResponseDTO(lecture.getTeacher());
         this.regist = lecture.getRegist();
-        this.comments = lecture.getComments().stream().map(SimpleCommentResponseDTO::new).collect(Collectors.toList());
+        this.comments = lecture.getComments().stream().map(CommentResponseDTO::new).collect(Collectors.toList());
     }
 }

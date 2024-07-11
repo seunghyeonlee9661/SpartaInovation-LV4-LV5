@@ -125,8 +125,8 @@ public class SpartaRestController {
 
     /* 강의 댓글 불러오기 */
     @GetMapping("/comment")
-    public List<CommentResponseDTO> findComments(@RequestParam("id") int id) {
-        return spartaService.findComments(id).stream().map(CommentResponseDTO::new).collect(Collectors.toList());
+    public ResponseDTO findComments(@RequestParam("id") int id) {
+        return spartaService.findComments(id);
     }
 
     /* 댓글 추가 */

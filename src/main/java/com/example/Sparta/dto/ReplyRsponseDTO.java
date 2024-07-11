@@ -7,13 +7,16 @@ import lombok.Getter;
 
 @Getter
 public class ReplyRsponseDTO {
+    private int id;
     private int user_id;
-    private String userEmail;
+    private String user_Email;
     private String text;
 
     public ReplyRsponseDTO(Reply reply){
+        this.id = reply.getId();
         this.user_id = reply.getUser().getId();
-        this.userEmail = reply.getUser().getEmail();
+        this.user_Email = reply.getUser().getEmail();
         this.text = reply.getText();
     }
 }
+

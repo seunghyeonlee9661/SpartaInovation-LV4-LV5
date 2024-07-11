@@ -12,7 +12,7 @@ public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id", nullable = false, columnDefinition = "int")
-    private long id;
+    private int id;
 
     @ManyToOne
     @JoinColumn(name="lecture_id", nullable = false)

@@ -179,14 +179,18 @@ public class SpartaService {
     /*------------------------댓글----------------------------------*/
 
     /* 댓글 목록 불러오기 */
-    public List<Comment> findComments(int id) {// DB 조회
-        return commentRepository.findAllById(id);
+    public ResponseDTO findComments(int id) {// DB 조회
+        List<Comment> comments = commentRepository.findByLectureId(id);
+        return new ResponseDTO(HttpStatus.OK.value(), "강사 목록 조회",comments.stream().map(CommentResponseDTO::new).toList());
     }
 
     /* 댓글 추가 */
     @Transactional
     public ResponseDTO createComment(CommentRequestDTO commentRequestDTO){
         try {
+            System.out.println(commentRequestDTO.getLecture_id());
+            System.out.println(commentRequestDTO.getUser_id());
+            System.out.println(commentRequestDTO.getText());
             Lecture lecture = lectureRepository.findById(commentRequestDTO.getLecture_id()).orElseThrow(() -> new IllegalArgumentException("강의가 존재하지 않습니다."));
             User user = userRepository.findById(commentRequestDTO.getUser_id()).orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
             Comment comment = new Comment(lecture,user,commentRequestDTO.getText());

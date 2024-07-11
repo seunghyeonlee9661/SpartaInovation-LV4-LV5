@@ -15,8 +15,7 @@
             </button>
             <div class="hstack gap-3">
                 <h1 id="lectureTitle" class="p-2 display-5 link-body-emphasis mb-1"></h1>
-                <span class="badge text-bg-info">Lecture</span>
-                <div class="p-1 ">
+                <div class="p-1 ms-auto">
                     <a class="btn btn-secondary me-2" onclick="callEditLectureModal()"><i class="bi bi-pencil-square"></i></a>
                 </div>
                 <div class="p-1 ">
@@ -32,6 +31,11 @@
             </div>
             <p id="lectureIntroduction" class="p-2 blog-post-meta"></p>
 
+            <div class="my-3">
+                <textarea id="addComment_text" class="form-control" rows="3" placeholder="댓글을 입력하세요..."></textarea>
+                <button class="btn btn-primary mt-2" th:onclick="addComment([[${id}]], [[${user.id}]]);">댓글 추가</button>
+            </div>
+
             <!-- 댓글 섹션 -->
             <div id="commentsSection" class="mt-5">
                 <div id="commentsList"></div>
@@ -39,6 +43,7 @@
         </div>
     </div>
 </div>
+
 <!-- 수정 모달 -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -101,8 +106,6 @@
     $(document).ready(function() {
         getLecture("[[${id}]]");
     });
-
-
 </script>
 <!--common script -->
 <th:block th:replace="layout :: scripts"></th:block>

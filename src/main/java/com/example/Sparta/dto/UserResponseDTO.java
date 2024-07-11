@@ -7,6 +7,7 @@ import lombok.Getter;
 
 @Getter
 public class UserResponseDTO {
+    private int id;
     private String email;
     private String gender;
     private String phone;
@@ -14,6 +15,7 @@ public class UserResponseDTO {
     private UserAuthority userAuthority;
 
     public UserResponseDTO(User user) {
+        this.id = user.getId();
         this.email = user.getEmail();
         this.gender = user.getGender();
         this.phone = user.getPhone();

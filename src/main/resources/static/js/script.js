@@ -261,53 +261,7 @@ function getLecture(id) {
                 $('#lectureDate').text(getFormattedDate(lecture.regist));
                 $('#lectureIntroduction').text(lecture.introduction);
                 // 댓글과 대댓글 작성
-
-            // 댓글과 대댓글 작성
-            let commentsList = $('#commentsList');
-            commentsList.empty(); // 기존 댓글 초기화
-
-                lecture.comments.forEach(comment => {
-                let commentHtml = `
-                    <div class="comment">
-                        <div class="hstack gap-3">
-                            <div class="comment-text">
-                                <p><strong>${comment.userEmail}</strong></p>
-                            </div>
-                            <button class="btn btn-sm float-end ms-auto" onclick="deleteComment(${comment.id})">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                            <button class="btn btn-sm float-end" onclick="editComment(${comment.id})">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                        </div>
-                        <div class="comment-text">
-                            <p>${comment.text}</p>
-                        </div>
-
-                        <div class="replies">
-                            ${comment.replies.map(reply => `
-                                <div class="reply">
-                                    <div class="hstack gap-3">
-                                        <div class="reply-text">
-                                            <p><strong>${reply.userEmail}</strong></p>
-                                        </div>
-                                        <button class="btn btn-sm float-end ms-auto" onclick="deleteReply(${reply.id})">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                        <button class="btn btn-sm float-end" onclick="editReply(${reply.id})">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                    </div>
-                                    <div class="reply-text">
-                                        <p>${reply.text}</p>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-                commentsList.append(commentHtml);
-                });
+                setComments(lecture.comments);
             } else {
                 alert(response.message);
             }
@@ -317,6 +271,72 @@ function getLecture(id) {
             console.log(error);
         });
 }
+
+function getComments(id) {
+    Request('/api/comment', 'GET', {
+          id: id,
+        })
+        .then(function(response) {
+            if (response.status === 200) {
+                setComments(response.data);
+            } else {
+                alert(response.message);
+            }
+        })
+        .catch(function(error) {
+            alert('강의 정보를 불러오는 중 오류가 발생했습니다.');
+            console.log(error);
+        });
+}
+
+function setComments(comments) {
+    // 댓글과 대댓글 작성
+    let commentsList = $('#commentsList');
+    commentsList.empty(); // 기존 댓글 초기화
+    comments.forEach(comment => {
+    let commentHtml = `
+        <div class="comment">
+            <div class="hstack gap-3">
+                <div class="comment-text">
+                    <p><strong>${comment.user_email}</strong></p>
+                </div>
+                <button class="btn btn-sm float-end ms-auto" onclick="deleteComment(${comment.id})">
+                    <i class="bi bi-trash"></i>
+                </button>
+                <button class="btn btn-sm float-end" onclick="editComment(${comment.id})">
+                    <i class="bi bi-pencil"></i>
+                </button>
+            </div>
+            <div class="comment-text">
+                <p>${comment.text}</p>
+            </div>
+
+            <div class="replies">
+                ${comment.replies.map(reply => `
+                    <div class="reply">
+                        <div class="hstack gap-3">
+                            <div class="reply-text">
+                                <p><strong>${reply.user_email}</strong></p>
+                            </div>
+                            <button class="btn btn-sm float-end ms-auto" onclick="deleteReply(${reply.id})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            <button class="btn btn-sm float-end" onclick="editReply(${reply.id})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </div>
+                        <div class="reply-text">
+                            <p>${reply.text}</p>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+    commentsList.append(commentHtml);
+    });
+}
+
 // 강의 수정을 위한 강사 목록 불러오기
 function getTeacherList() {
     Request('/api/teachers', 'GET', null)
@@ -402,23 +422,24 @@ function editLecture(id) {
 }
 //_______________댓글__________________________
 // 댓글 추가
-function addComment(lecture_id,user_id,text) {
-    if (checkValidity('addLectureForm')) {
+function addComment(lecture_id,user_id) {
+    let text = $('#addComment_text').val();
+    if (text != null) {
         Request('/api/comment', 'POST', {
                 'lecture_id': lecture_id,
                 'user_id': user_id,
-                'text': $('#addComment_text').val(),
+                'text': text
             })
             .then(function(response) {
                 if (response.status === 200) {
                     alert(response.message);
-                    location.href = location.href;
+                    getComments(lecture_id);
                 } else {
                     alert(response.message);
                 }
             })
             .catch(function(error) {
-                alert(error.responseText);
+                alert(error);
             });
     }
 }
