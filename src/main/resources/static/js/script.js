@@ -252,7 +252,6 @@ function getLecture(id) {
         })
         .then(function(response) {
             if (response.status === 200) {
-                alert(response.message);
                 // 강의 정보 작성
                 let lecture = response.data;
                 $('#lectureTitle').text(lecture.title);
@@ -261,9 +260,54 @@ function getLecture(id) {
                 $('#lectureTeacher').text(lecture.teacher.name);
                 $('#lectureDate').text(getFormattedDate(lecture.regist));
                 $('#lectureIntroduction').text(lecture.introduction);
+                // 댓글과 대댓글 작성
 
-                console.log(response.data);
+            // 댓글과 대댓글 작성
+            let commentsList = $('#commentsList');
+            commentsList.empty(); // 기존 댓글 초기화
 
+                lecture.comments.forEach(comment => {
+                let commentHtml = `
+                    <div class="comment">
+                        <div class="hstack gap-3">
+                            <div class="comment-text">
+                                <p><strong>${comment.userEmail}</strong></p>
+                            </div>
+                            <button class="btn btn-sm float-end ms-auto" onclick="deleteComment(${comment.id})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            <button class="btn btn-sm float-end" onclick="editComment(${comment.id})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </div>
+                        <div class="comment-text">
+                            <p>${comment.text}</p>
+                        </div>
+
+                        <div class="replies">
+                            ${comment.replies.map(reply => `
+                                <div class="reply">
+                                    <div class="hstack gap-3">
+                                        <div class="reply-text">
+                                            <p><strong>${reply.userEmail}</strong></p>
+                                        </div>
+                                        <button class="btn btn-sm float-end ms-auto" onclick="deleteReply(${reply.id})">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                        <button class="btn btn-sm float-end" onclick="editReply(${reply.id})">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    </div>
+                                    <div class="reply-text">
+                                        <p>${reply.text}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                commentsList.append(commentHtml);
+                });
             } else {
                 alert(response.message);
             }
@@ -273,9 +317,6 @@ function getLecture(id) {
             console.log(error);
         });
 }
-
-
-
 // 강의 수정을 위한 강사 목록 불러오기
 function getTeacherList() {
     Request('/api/teachers', 'GET', null)
@@ -320,7 +361,6 @@ function deleteLecture(id) {
       }
     }
 }
-
 // 수정 모달 열기 함수
 function callEditLectureModal() {
     if (checkRole()) {

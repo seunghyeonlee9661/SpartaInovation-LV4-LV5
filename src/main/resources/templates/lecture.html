@@ -34,7 +34,6 @@
 
             <!-- 댓글 섹션 -->
             <div id="commentsSection" class="mt-5">
-                <h3>Comments</h3>
                 <div id="commentsList"></div>
             </div>
         </div>
@@ -102,6 +101,8 @@
     $(document).ready(function() {
         getLecture("[[${id}]]");
     });
+
+
 </script>
 <!--common script -->
 <th:block th:replace="layout :: scripts"></th:block>
