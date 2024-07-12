@@ -74,6 +74,7 @@ public class WebSecurityConfig {
                         // 강사 목록 불러오는 요청 : 허용
                         .requestMatchers(HttpMethod.GET, "/api/teacher").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/lecture").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/like").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/teachers").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/lectures").permitAll()
                         // 그 외 모든 요청 인증처리

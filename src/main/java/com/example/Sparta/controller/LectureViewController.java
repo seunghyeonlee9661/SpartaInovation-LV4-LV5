@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("")
-public class SpartaViewController {
+public class LectureViewController {
 
     /* 로그인 페이지 */
     @GetMapping("/login")

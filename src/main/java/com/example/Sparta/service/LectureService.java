@@ -4,23 +4,20 @@ import com.example.Sparta.entity.*;
 import com.example.Sparta.enums.LectureCategory;
 import com.example.Sparta.global.JwtUtil;
 import com.example.Sparta.repository.*;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
-public class SpartaService {
+public class LectureService {
 
     private final UserRepository userRepository;
     private final TeacherRepository teacherRepository;
@@ -32,7 +29,7 @@ public class SpartaService {
     private final JwtUtil jwtUtil;
 
     @Autowired
-    public SpartaService(UserRepository userRepository, TeacherRepository teacherRepository, LectureRepository lectureRepository, CommentRepository commentRepository, ReplyRepository replyRepository, LikeRepository likeRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public LectureService(UserRepository userRepository, TeacherRepository teacherRepository, LectureRepository lectureRepository, CommentRepository commentRepository, ReplyRepository replyRepository, LikeRepository likeRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.teacherRepository = teacherRepository;
         this.lectureRepository = lectureRepository;

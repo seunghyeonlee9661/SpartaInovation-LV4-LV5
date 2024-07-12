@@ -116,8 +116,6 @@
         </div>
     </div>
 </div>
-
-<script src="/js/script.js" type="text/javascript"></script>
 <script>
     const href = location.href;
     if (location.href.substring(href.indexOf("?") + 1) === 'error') {
@@ -125,7 +123,6 @@
         errorDiv.style.display = 'block';
     }
 </script>
-
 <th:block th:replace="layout :: scripts"></th:block>
 </body>
 

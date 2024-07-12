@@ -21,6 +21,7 @@ function maxLengthCheck(object) {
         object.value = object.value.replace(/[^\d]/g, ''); // 숫자 이외의 입력을 제거합니다.
     }
 }
+
  // ajax로 요청 보내는 함수
  function Request(url, type, data) {
    var ajaxOptions = {
@@ -58,7 +59,7 @@ function setPagination(paging) {
   for (var i = 0; i < paging.totalPages; i++) {
       if (i >= paging.number - 5 && i <= paging.number + 5) {
           paginationHtml += '<li class="page-item ' + (i === paging.number ? 'active' : '') + '">';
-          paginationHtml += '<a class="page-link" href="javascript:void(0)" data-page="' + i + '">' + i + '</a>';
+          paginationHtml += '<a class="page-link" href="javascript:void(0)" data-page="' + i + '">' + (i+1) + '</a>';
           paginationHtml += '</li>';
       }
   }
@@ -92,6 +93,77 @@ function checkValidity(id) {
     form.classList.add('was-validated');
     return true;
 }
+
+//_______________사용자__________________________
+// 회원가입
+function signup() {
+    if (checkValidity('signupForm')) {
+        Request('/api/user/signup', 'POST', {
+            'email': $('#email').val(),
+            'password': $('#password').val(),
+            'gender': $(":input:radio[name=gender]:checked").val(),
+            'phone': $('#phone1').val() + $('#phone2').val() + $('#phone3').val(),
+            'address': $('#address').val(),
+            'authority': $(":input:radio[name=authority]:checked").val()
+        })
+        .then(function(response) {
+            if (response.status === 200) {
+                location.href = "/login";
+            } else {
+                alert(response.message);
+            }
+        })
+        .catch(function(xhr, status, error) {
+            console.log(xhr)
+            console.log(status)
+            console.log(error)
+            alert('서버 오류가 발생했습니다.');
+        });
+    }
+}
+// 로그인
+function login() {
+    if (checkValidity('loginForm')) {
+        Request('/api/user/login', 'POST', {
+                'username': $('#login_email').val(),
+                'password': $('#login_password').val()
+            })
+            .done(function(res,status,xhr) {
+                  if(status == "success") {
+                    alert("로그인 성공")
+                    location.href = '/';
+                  }
+              })
+            .fail(function(xhr, textStatus, errorThrown) {
+                   console.log('statusCode: ' + xhr.status);
+                   console.log(xhr);
+                   console.log(textStatus);
+                   console.log(errorThrown);
+                   location.href = '/login?error'
+               });
+    }
+}
+// 사용자 권한 확인
+function checkRole(){
+     const token = Cookies.get('Authorization'); // JWT가 저장된 쿠키의 이름을 넣으세요
+     if (token) {
+         try {
+             const decoded = jwt_decode(token);
+             if(decoded.auth === "ADMIN"){
+                 return true;
+             }else{
+                 alert('ADMIN 권한이 필요합니다.');
+                 return false;
+             }
+         } catch (error) {
+             alert('JWT decoding Error');
+             location.href = '/';
+         }
+     } else {
+         alert('로그인이 필요합니다.');
+         location.href = '/login';
+     }
+ }
 // 로그아웃
 function logout() {
   if(confirm("로그아웃 하시겠습니까?")){

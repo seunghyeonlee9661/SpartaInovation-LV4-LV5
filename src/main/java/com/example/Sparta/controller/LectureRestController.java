@@ -2,24 +2,20 @@ package com.example.Sparta.controller;
 
 import com.example.Sparta.dto.*;
 import com.example.Sparta.enums.UserAuthority;
-import com.example.Sparta.service.SpartaService;
+import com.example.Sparta.service.LectureService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api")
-public class SpartaRestController {
+public class LectureRestController {
 
-    private final SpartaService spartaService;
+    private final LectureService lectureService;
 
     /* 사용자 추가 */
     @PostMapping("/user/signup")
@@ -29,7 +25,7 @@ public class SpartaRestController {
             String errorMessage = bindingResult.getFieldError().getDefaultMessage();
             return new ResponseDTO(HttpStatus.BAD_REQUEST.value(),errorMessage,null);
         }
-        return spartaService.signup(requestDTO);
+        return lectureService.signup(requestDTO);
     }
 
     /*____________________강의__________________________*/
@@ -37,13 +33,13 @@ public class SpartaRestController {
     /* 강의 목록 불러오기 */
     @GetMapping("/lectures")
     public ResponseDTO findLectures(@RequestParam(value="page", defaultValue="0") int page, @RequestParam(value="category", defaultValue="") String category) {
-        return spartaService.findLectures(page, category);
+        return lectureService.findLectures(page, category);
     }
 
     /* 강의 내용 불러오기 */
     @GetMapping("/lecture")
     public ResponseDTO findLecture(@RequestParam("id") int id) {
-        return spartaService.findLecture(id);
+        return lectureService.findLecture(id);
     }
 
     /* 강의 추가 */
@@ -55,13 +51,13 @@ public class SpartaRestController {
             String errorMessage = bindingResult.getFieldError().getDefaultMessage();
             return new ResponseDTO(HttpStatus.BAD_REQUEST.value(),errorMessage,null);
         }
-        return spartaService.createLecture(lectureRequestDTO);
+        return lectureService.createLecture(lectureRequestDTO);
     }
 
     /* 강의 삭제 */
     @DeleteMapping("/lecture")
     public ResponseDTO removeLecture(@RequestParam("id") int id) {
-        return spartaService.removeLecture(id);
+        return lectureService.removeLecture(id);
     }
 
     /* 강의 수정 */
@@ -72,7 +68,7 @@ public class SpartaRestController {
             String errorMessage = bindingResult.getFieldError().getDefaultMessage();
             return new ResponseDTO(HttpStatus.BAD_REQUEST.value(),errorMessage,null);
         }
-        return spartaService.updateLecture(id, lectureRequestDTO);
+        return lectureService.updateLecture(id, lectureRequestDTO);
     }
 
     /*____________________강사__________________________*/
@@ -80,13 +76,13 @@ public class SpartaRestController {
     /* 강사 목록 불러오기 */
     @GetMapping("/teachers")
     public ResponseDTO findTeachers() {
-        return spartaService.findTeachers();
+        return lectureService.findTeachers();
     }
 
     /* 강사 정보 불러오기 */
     @GetMapping("/teacher")
     public ResponseDTO findTeacher(@RequestParam("id") int id) {
-        return spartaService.findTeacher(id);
+        return lectureService.findTeacher(id);
     }
 
     /* 강사 추가 */
@@ -98,13 +94,13 @@ public class SpartaRestController {
             String errorMessage = bindingResult.getFieldError().getDefaultMessage();
             return new ResponseDTO(HttpStatus.BAD_REQUEST.value(),errorMessage,null);
         }
-        return spartaService.createLecture(teacherRequestDTO);
+        return lectureService.createLecture(teacherRequestDTO);
     }
 
     /* 강사 삭제 */
     @DeleteMapping("/teacher")
     public ResponseDTO removeTeacher(@RequestParam("id") int id) {
-        return spartaService.removeTeacher(id);
+        return lectureService.removeTeacher(id);
     }
 
     /* 강사 수정 */
@@ -115,7 +111,7 @@ public class SpartaRestController {
             String errorMessage = bindingResult.getFieldError().getDefaultMessage();
             return new ResponseDTO(HttpStatus.BAD_REQUEST.value(),errorMessage,null);
         }
-        return spartaService.updateTeacher(id, teacherRequestDTO);
+        return lectureService.updateTeacher(id, teacherRequestDTO);
     }
 
     /*____________________댓글__________________________*/
@@ -123,7 +119,7 @@ public class SpartaRestController {
     /* 강의 댓글 불러오기 */
     @GetMapping("/comment")
     public ResponseDTO findComments(@RequestParam("id") int id) {
-        return spartaService.findComments(id);
+        return lectureService.findComments(id);
     }
 
     /* 댓글 추가*/
@@ -134,13 +130,13 @@ public class SpartaRestController {
             String errorMessage = bindingResult.getFieldError().getDefaultMessage();
             return new ResponseDTO(HttpStatus.BAD_REQUEST.value(),errorMessage,null);
         }
-        return spartaService.createComment(commentRequestDTO);
+        return lectureService.createComment(commentRequestDTO);
     }
 
     /* 댓글 삭제 */
     @DeleteMapping("/comment")
     public ResponseDTO removeComment(@RequestParam("id") int id) {
-        return spartaService.removeComment(id);
+        return lectureService.removeComment(id);
     }
 
     /* 댓글 수정 */
@@ -151,7 +147,7 @@ public class SpartaRestController {
             String errorMessage = bindingResult.getFieldError().getDefaultMessage();
             return new ResponseDTO(HttpStatus.BAD_REQUEST.value(),errorMessage,null);
         }
-        return spartaService.updateComment(id, commentUpdateDTO);
+        return lectureService.updateComment(id, commentUpdateDTO);
     }
 
     /*____________________대댓글_________________________*/
@@ -164,13 +160,13 @@ public class SpartaRestController {
             String errorMessage = bindingResult.getFieldError().getDefaultMessage();
             return new ResponseDTO(HttpStatus.BAD_REQUEST.value(),errorMessage,null);
         }
-        return spartaService.createReply(replyRequestDTO);
+        return lectureService.createReply(replyRequestDTO);
     }
 
     /* 강사 삭제 */
     @DeleteMapping("/reply")
     public ResponseDTO removeReply(@RequestParam("id") int id) {
-        return spartaService.removeReply(id);
+        return lectureService.removeReply(id);
     }
 
     /* 강사 수정 */
@@ -181,7 +177,7 @@ public class SpartaRestController {
             String errorMessage = bindingResult.getFieldError().getDefaultMessage();
             return new ResponseDTO(HttpStatus.BAD_REQUEST.value(),errorMessage,null);
         }
-        return spartaService.updateReply(id, replyUpdateDTO);
+        return lectureService.updateReply(id, replyUpdateDTO);
     }
 
     /*____________________좋아요_________________________*/
@@ -189,7 +185,7 @@ public class SpartaRestController {
     /* 사용자 좋아요 확인 */
     @GetMapping("/like")
     public ResponseDTO findLike(@RequestParam("lecture_id") int lecture_id,@RequestParam("user_id") int user_id) {
-        return spartaService.findLike(lecture_id,user_id);
+        return lectureService.findLike(lecture_id,user_id);
     }
 
     /* 사용자 좋아요 변경 */
@@ -200,7 +196,7 @@ public class SpartaRestController {
             String errorMessage = bindingResult.getFieldError().getDefaultMessage();
             return new ResponseDTO(HttpStatus.BAD_REQUEST.value(),errorMessage,null);
         }
-        return spartaService.setLike(likeRequestDTO);
+        return lectureService.setLike(likeRequestDTO);
     }
 
 }

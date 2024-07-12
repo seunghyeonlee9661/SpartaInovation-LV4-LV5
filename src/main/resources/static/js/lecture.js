@@ -1,73 +1,3 @@
-//_______________사용자__________________________
-// 회원가입
-function signup() {
-    if (checkValidity('signupForm')) {
-        Request('/api/user/signup', 'POST', {
-            'email': $('#email').val(),
-            'password': $('#password').val(),
-            'gender': $(":input:radio[name=gender]:checked").val(),
-            'phone': $('#phone1').val() + $('#phone2').val() + $('#phone3').val(),
-            'address': $('#address').val(),
-            'authority': $(":input:radio[name=authority]:checked").val()
-        })
-        .then(function(response) {
-            if (response.status === 200) {
-                location.href = "/login";
-            } else {
-                alert(response.message);
-            }
-        })
-        .catch(function(xhr, status, error) {
-            console.log(xhr)
-            console.log(status)
-            console.log(error)
-            alert('서버 오류가 발생했습니다.');
-        });
-    }
-}
-// 로그인
-function login() {
-    if (checkValidity('loginForm')) {
-        Request('/api/user/login', 'POST', {
-                'username': $('#login_email').val(),
-                'password': $('#login_password').val()
-            })
-            .done(function(res,status,xhr) {
-                  if(status == "success") {
-                    alert("로그인 성공")
-                    location.href = '/';
-                  }
-              })
-            .fail(function(xhr, textStatus, errorThrown) {
-                   console.log('statusCode: ' + xhr.status);
-                   console.log(xhr);
-                   console.log(textStatus);
-                   console.log(errorThrown);
-                   location.href = '/login?error'
-               });
-    }
-}
-// 사용자 권한 확인
-function checkRole(){
-     const token = Cookies.get('Authorization'); // JWT가 저장된 쿠키의 이름을 넣으세요
-     if (token) {
-         try {
-             const decoded = jwt_decode(token);
-             if(decoded.auth === "ADMIN"){
-                 return true;
-             }else{
-                 alert('ADMIN 권한이 필요합니다.');
-                 return false;
-             }
-         } catch (error) {
-             alert('JWT decoding Error');
-             location.href = '/';
-         }
-     } else {
-         alert('로그인이 필요합니다.');
-         location.href = '/login';
-     }
- }
 //_______________강사_______________________
 // 강사 추가
 function addTeacher() {
@@ -274,10 +204,14 @@ function getLecture(id) {
                 $('#lectureIntroduction').text(lecture.introduction);
                 // 댓글과 대댓글 작성
                 setComments(lecture.comments);
+                // 사용자가 좋아요를 눌렀는지 확인하는 기능
                 if(user_id != null){
                     checkLike();
                 }
+                // 좋아요 갯수
                 document.getElementById('likeCnt').textContent = lecture.likes;
+                // 강의 수정을 위한 교사 목록 불러오는 기능
+                getTeacherList(lecture.teacher.id);
             } else {
                 alert(response.message);
             }
@@ -288,7 +222,7 @@ function getLecture(id) {
         });
 }
 // 강의 수정을 위한 강사 목록 불러오기
-function getTeacherList() {
+function getTeacherList(id){
     Request('/api/teachers', 'GET', null)
         .then(function(response) {
             if (response.status === 200) {
@@ -320,7 +254,7 @@ function deleteLecture(id) {
           .then(function(response) {
                 if (response.status === 200) {
                     alert(response.message);
-                     window.location.href = '/main';
+                     window.location.href = '/';
                 } else {
                     alert(response.message);
                 }
@@ -339,7 +273,6 @@ function callEditLectureModal() {
         $('#editLecture_price').val($('#lecturePrice').text());
         $('#editLecture_introduction').val($('#lectureIntroduction').text());
         $('#editLecture_category').val($('#lectureCategory').text());
-        getTeacherList();
         // 모달 열기
         let myModal = new bootstrap.Modal(document.getElementById('editModal'), {
             keyboard: false
@@ -404,18 +337,25 @@ function setComments(comments){
                     <div class="comment-text">
                         <p>${comment.regist}</p>
                     </div>
-                    <button class="btn btn-sm float-end ${isCommentOwner ? '' : 'd-none'}" onclick="deleteComment(${comment.id})">
-                        <i class="bi bi-trash"></i>
+                    <button class="btn btn-sm float-end ms-auto ${isCommentOwner ? '' : 'd-none'}" onclick="replyComment(${comment.id}, this)">
+                        <i class="bi bi-reply"></i>
                     </button>
+
                     <button class="btn btn-sm float-end ${isCommentOwner ? '' : 'd-none'}" onclick="editComment(${comment.id},this)">
                         <i class="bi bi-pencil"></i>
                     </button>
-                    <button class="btn btn-sm float-end" onclick="replyComment(${comment.id}, this)">
-                        <i class="bi bi-reply"></i>
+                    <button class="btn btn-sm float-end ${isCommentOwner ? '' : 'd-none'}" onclick="deleteComment(${comment.id})">
+                        <i class="bi bi-trash"></i>
                     </button>
+
                 </div>
                 <div class="comment-text" id="comment-text-${comment.id}">
                     <p>${comment.text}</p>
+                </div>
+                <div class="reply-input d-none" id="reply-input-${comment.id}">
+                    <textarea class="form-control" rows="3"></textarea>
+                    <button class="btn btn-sm btn-primary mt-2" onclick="addReply(${comment.id}, this)">완료</button>
+                    <button class="btn btn-sm btn-secondary mt-2" onclick="cancelReply(${comment.id}, this)">취소</button>
                 </div>
                 <div class="replies">
                     ${comment.replies.map(reply => {
@@ -429,11 +369,12 @@ function setComments(comments){
                                     <div class="reply-text">
                                         <p>${reply.regist}</p>
                                     </div>
+
+                                    <button class="btn btn-sm float-end ms-auto ${isReplyOwner ? '' : 'd-none'}" onclick="editReply(${reply.id}, this)">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
                                     <button class="btn btn-sm float-end ${isReplyOwner ? '' : 'd-none'}" onclick="deleteReply(${reply.id})">
                                         <i class="bi bi-trash"></i>
-                                    </button>
-                                    <button class="btn btn-sm float-end ${isReplyOwner ? '' : 'd-none'}" onclick="editReply(${reply.id}, this)">
-                                        <i class="bi bi-pencil"></i>
                                     </button>
                                 </div>
                                 <div class="reply-text" id="reply-text-${reply.id}">
@@ -442,11 +383,6 @@ function setComments(comments){
                             </div>
                         `;
                     }).join('')}
-                </div>
-                <div class="reply-input d-none" id="reply-input-${comment.id}">
-                    <textarea class="form-control" rows="3"></textarea>
-                    <button class="btn btn-sm btn-primary mt-2" onclick="addReply(${comment.id}, this)">완료</button>
-                    <button class="btn btn-sm btn-secondary mt-2" onclick="cancelReply(${comment.id}, this)">취소</button>
                 </div>
             </div>
         `;
