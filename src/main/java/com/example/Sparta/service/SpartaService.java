@@ -1,15 +1,9 @@
 package com.example.Sparta.service;
 import com.example.Sparta.dto.*;
-import com.example.Sparta.entity.Comment;
-import com.example.Sparta.entity.Lecture;
-import com.example.Sparta.entity.Teacher;
-import com.example.Sparta.entity.User;
+import com.example.Sparta.entity.*;
 import com.example.Sparta.enums.LectureCategory;
 import com.example.Sparta.global.JwtUtil;
-import com.example.Sparta.repository.CommentRepository;
-import com.example.Sparta.repository.LectureRepository;
-import com.example.Sparta.repository.TeacherRepository;
-import com.example.Sparta.repository.UserRepository;
+import com.example.Sparta.repository.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,15 +26,17 @@ public class SpartaService {
     private final TeacherRepository teacherRepository;
     private final LectureRepository lectureRepository;
     private final CommentRepository commentRepository;
+    private final ReplyRepository replyRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     @Autowired
-    public SpartaService(UserRepository userRepository, TeacherRepository teacherRepository, LectureRepository lectureRepository, CommentRepository commentRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public SpartaService(UserRepository userRepository, TeacherRepository teacherRepository, LectureRepository lectureRepository, CommentRepository commentRepository, ReplyRepository replyRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.teacherRepository = teacherRepository;
         this.lectureRepository = lectureRepository;
         this.commentRepository = commentRepository;
+        this.replyRepository = replyRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
@@ -188,14 +184,11 @@ public class SpartaService {
     @Transactional
     public ResponseDTO createComment(CommentRequestDTO commentRequestDTO){
         try {
-            System.out.println(commentRequestDTO.getLecture_id());
-            System.out.println(commentRequestDTO.getUser_id());
-            System.out.println(commentRequestDTO.getText());
             Lecture lecture = lectureRepository.findById(commentRequestDTO.getLecture_id()).orElseThrow(() -> new IllegalArgumentException("강의가 존재하지 않습니다."));
             User user = userRepository.findById(commentRequestDTO.getUser_id()).orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
             Comment comment = new Comment(lecture,user,commentRequestDTO.getText());
             commentRepository.save(comment);
-            return new ResponseDTO(HttpStatus.OK.value(), "댓글 추가 완료", new LectureResponseDTO(lecture));
+            return new ResponseDTO(HttpStatus.OK.value(), "댓글 추가 완료",null);
         } catch (Exception e) {
             return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
         }
@@ -203,31 +196,65 @@ public class SpartaService {
 
     /* 댓글 수정 */
     @Transactional
-    public ResponseEntity<String> updateComment(int id, CommentRequestDTO commentRequestDTO){
+    public ResponseDTO updateComment(int id, CommentUpdateDTO commentUpdateDTO){
         try {
             Comment comment = commentRepository.findById(id).orElseThrow(()-> new NoSuchElementException("댓글이 존재하지 않습니다."));
-            comment.update(commentRequestDTO.getText());
-            return ResponseEntity.ok("강의가 수정되었습니다.");
-        }catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-
-        }catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            comment.update(commentUpdateDTO);
+            return new ResponseDTO(HttpStatus.OK.value(), "댓글 수정 완료", null);
+        } catch (Exception e) {
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
         }
     }
 
     /* 댓글 삭제 */
     @Transactional
-    public ResponseEntity<String> removeComment(int id){
+    public ResponseDTO removeComment(int id){
         try {
             Comment comment = commentRepository.findById(id).orElseThrow(()-> new NoSuchElementException("댓글이 존재하지 않습니다."));
             commentRepository.delete(comment);
-            return ResponseEntity.ok("강의가 삭제되었습니다.");
-        }catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return new ResponseDTO(HttpStatus.OK.value(), "댓글 삭제 완료", null);
+        } catch (Exception e) {
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
+        }
+    }
 
-        }catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    /*------------------------대댓글----------------------------------*/
+
+    /* 대댓글 추가 */
+    @Transactional
+    public ResponseDTO createReply(ReplyRequestDTO replyRequestDTO){
+        try {
+            Comment comment = commentRepository.findById(replyRequestDTO.getComment_id()).orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다."));
+            User user = userRepository.findById(replyRequestDTO.getUser_id()).orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+            Reply reply = new Reply(comment,user,replyRequestDTO.getText());
+            replyRepository.save(reply);
+            return new ResponseDTO(HttpStatus.OK.value(), "대댓글 추가 완료",null);
+        } catch (Exception e) {
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
+        }
+    }
+
+    /* 대댓글 수정 */
+    @Transactional
+    public ResponseDTO updateReply(int id, ReplyUpdateDTO replyUpdateDTO){
+        try {
+            Reply reply = replyRepository.findById(id).orElseThrow(()-> new NoSuchElementException("대댓글이 존재하지 않습니다."));
+            reply.update(replyUpdateDTO);
+            return new ResponseDTO(HttpStatus.OK.value(), "대댓글 수정 완료", null);
+        } catch (Exception e) {
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
+        }
+    }
+
+    /* 대댓글 삭제 */
+    @Transactional
+    public ResponseDTO removeReply(int id){
+        try {
+            Reply reply = replyRepository.findById(id).orElseThrow(()-> new NoSuchElementException("대댓글이 존재하지 않습니다."));
+            replyRepository.delete(reply);
+            return new ResponseDTO(HttpStatus.OK.value(), "대댓글 삭제 완료", null);
+        } catch (Exception e) {
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
         }
     }
 

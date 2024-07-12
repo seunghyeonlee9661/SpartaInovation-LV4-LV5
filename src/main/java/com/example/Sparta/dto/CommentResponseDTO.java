@@ -3,6 +3,7 @@ import com.example.Sparta.entity.Comment;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,6 +14,7 @@ public class CommentResponseDTO {
     private String user_email;
     private String text;
     private List<ReplyRsponseDTO> replies;
+    private LocalDateTime regist;
 
     public CommentResponseDTO(Comment comment){
         this.id = comment.getId();
@@ -20,5 +22,6 @@ public class CommentResponseDTO {
         this.user_email = comment.getUser().getEmail();
         this.text = comment.getText();
         this.replies = comment.getReplies().stream().map(ReplyRsponseDTO::new).collect(Collectors.toList());
+        this.regist = comment.getRegist();
     }
 }

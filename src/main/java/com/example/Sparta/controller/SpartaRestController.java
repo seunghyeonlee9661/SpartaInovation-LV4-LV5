@@ -1,17 +1,14 @@
 package com.example.Sparta.controller;
 
 import com.example.Sparta.dto.*;
-import com.example.Sparta.entity.Comment;
 import com.example.Sparta.enums.UserAuthority;
 import com.example.Sparta.service.SpartaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -129,8 +126,7 @@ public class SpartaRestController {
         return spartaService.findComments(id);
     }
 
-    /* 댓글 추가 */
-    @Secured(UserAuthority.Authority.ADMIN)
+    /* 댓글 추가*/
     @PostMapping("/comment")
     public ResponseDTO createComment(@RequestBody @Valid CommentRequestDTO commentRequestDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -143,14 +139,39 @@ public class SpartaRestController {
 
     /* 강사 삭제 */
     @DeleteMapping("/comment")
-    public ResponseEntity<String> removeComment(@RequestParam("id") int id) {
+    public ResponseDTO removeComment(@RequestParam("id") int id) {
         return spartaService.removeComment(id);
     }
 
     /* 강사 수정 */
     @PutMapping("/comment")
-    public ResponseEntity<String> updateComment(@RequestBody CommentRequestDTO commentRequestDTO, @RequestParam("id") int id) {
-        return spartaService.updateComment(id, commentRequestDTO);
+    public ResponseDTO updateComment(@RequestBody CommentUpdateDTO commentUpdateDTO, @RequestParam("id") int id) {
+        return spartaService.updateComment(id, commentUpdateDTO);
+    }
+
+    /*____________________대댓글_________________________*/
+
+    /* 대댓글 추가 */
+    @PostMapping("/reply")
+    public ResponseDTO createReply(@RequestBody @Valid ReplyRequestDTO replyRequestDTO, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            // 검증 오류가 발생한 경우
+            String errorMessage = bindingResult.getFieldError().getDefaultMessage();
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(),errorMessage,null);
+        }
+        return spartaService.createReply(replyRequestDTO);
+    }
+
+    /* 강사 삭제 */
+    @DeleteMapping("/reply")
+    public ResponseDTO removeReply(@RequestParam("id") int id) {
+        return spartaService.removeReply(id);
+    }
+
+    /* 강사 수정 */
+    @PutMapping("/reply")
+    public ResponseDTO updateReply(@RequestBody ReplyUpdateDTO replyUpdateDTO, @RequestParam("id") int id) {
+        return spartaService.updateReply(id, replyUpdateDTO);
     }
 
 }

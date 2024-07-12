@@ -1,9 +1,13 @@
 package com.example.Sparta.entity;
 
+import com.example.Sparta.dto.ReplyUpdateDTO;
 import com.example.Sparta.dto.TeacherRequestDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -26,13 +30,17 @@ public class Reply {
     @Column(name="text", nullable = false, columnDefinition = "TEXT")
     private String text;
 
+    @CreationTimestamp
+    @Column(name="regist")
+    private LocalDateTime regist;
+
     public Reply(Comment comment, User user, String text) {
         this.user = user;
         this.comment = comment;
         this.text = text;
     }
 
-    public void update(String text) {
-        this.text = text;
+    public void update(ReplyUpdateDTO replyUpdateDTO) {
+        this.text = replyUpdateDTO.getText();
     }
 }

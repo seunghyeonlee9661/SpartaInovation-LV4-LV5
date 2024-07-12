@@ -1,5 +1,4 @@
 //_______________사용자__________________________
-
 // 회원가입
 function signup() {
     if (checkValidity('signupForm')) {
@@ -26,7 +25,6 @@ function signup() {
         });
     }
 }
-
 // 로그인
 function login() {
     if (checkValidity('loginForm')) {
@@ -49,7 +47,27 @@ function login() {
                });
     }
 }
-
+// 사용자 권한 확인
+function checkRole(){
+     const token = Cookies.get('Authorization'); // JWT가 저장된 쿠키의 이름을 넣으세요
+     if (token) {
+         try {
+             const decoded = jwt_decode(token);
+             if(decoded.auth === "ADMIN"){
+                 return true;
+             }else{
+                 alert('ADMIN 권한이 필요합니다.');
+                 return false;
+             }
+         } catch (error) {
+             alert('JWT decoding Error');
+             location.href = '/';
+         }
+     } else {
+         alert('로그인이 필요합니다.');
+         location.href = '/login';
+     }
+ }
 //_______________강사_______________________
 // 강사 추가
 function addTeacher() {
@@ -240,7 +258,7 @@ function getLectures(page,category) {
         });
 }
 // 강의 정보 불러오기
-function getLecture(id,user_id) {
+function getLecture(id) {
     Request('/api/lecture', 'GET', {
           id: id,
         })
@@ -255,7 +273,7 @@ function getLecture(id,user_id) {
                 $('#lectureDate').text(getFormattedDate(lecture.regist));
                 $('#lectureIntroduction').text(lecture.introduction);
                 // 댓글과 대댓글 작성
-                setComments(lecture.comments,user_id);
+                setComments(lecture.comments);
             } else {
                 alert(response.message);
             }
@@ -265,62 +283,6 @@ function getLecture(id,user_id) {
             console.log(error);
         });
 }
-
-function setComments(comments, user_id) {
-    console.log("user_id : " + user_id )
-    let commentsList = $('#commentsList');
-    commentsList.empty(); // 기존 댓글 초기화
-
-    comments.forEach(comment => {
-        let isCommentOwner = (user_id && comment.user_id === user_id);
-
-        let commentHtml = `
-            <div class="comment" id="comment-${comment.id}">
-                <div class="hstack gap-1">
-                    <div class="comment-text">
-                        <p><strong>${comment.user_email}</strong></p>
-                    </div>
-                    <button class="btn btn-sm float-end ${isCommentOwner ? '' : 'd-none'}" onclick="deleteComment(${comment.id})">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                    <button class="btn btn-sm float-end ${isCommentOwner ? '' : 'd-none'}" onclick="editComment(${comment.id}, this)" data-editing="false">
-                        <i class="bi bi-pencil"></i>
-                    </button>
-                </div>
-                <div class="comment-text" id="comment-text-${comment.id}">
-                    <p>${comment.text}</p>
-                </div>
-                <div class="replies">
-                    ${comment.replies.map(reply => {
-                        let isReplyOwner = (user_id && reply.user_id === user_id);
-                        return `
-                            <div class="reply" id="reply-${reply.id}">
-                                <div class="hstack gap-1">
-                                    <div class="reply-text">
-                                        <p><strong>${reply.user_email}</strong></p>
-                                    </div>
-                                    <button class="btn btn-sm float-end ${isReplyOwner ? '' : 'd-none'}" onclick="deleteReply(${reply.id})">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                    <button class="btn btn-sm float-end ${isReplyOwner ? '' : 'd-none'}" onclick="editReply(${reply.id}, this)" data-editing="false">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                </div>
-                                <div class="reply-text" id="reply-text-${reply.id}">
-                                    <p>${reply.text}</p>
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            </div>
-        `;
-        commentsList.append(commentHtml);
-    });
-}
-
-
-
 // 강의 수정을 위한 강사 목록 불러오기
 function getTeacherList() {
     Request('/api/teachers', 'GET', null)
@@ -406,13 +368,13 @@ function editLecture(id) {
 }
 //_______________댓글__________________________
 //댓글 불러오기
-function getComments(id,user_id) {
+function getComments(id) {
     Request('/api/comment', 'GET', {
           id: id,
         })
         .then(function(response) {
             if (response.status === 200) {
-                setComments(response.data,user_id);
+                setComments(response.data);
             } else {
                 alert(response.message);
             }
@@ -422,10 +384,76 @@ function getComments(id,user_id) {
             console.log(error);
         });
 }
+// 댓글 목록 정렬하는 코드
+function setComments(comments){
+    console.log("user_id : " + user_id )
+    let commentsList = $('#commentsList');
+    commentsList.empty(); // 기존 댓글 초기화
+
+    comments.forEach(comment => {
+        let isCommentOwner = (user_id && comment.user_id === user_id);
+        let commentHtml = `
+            <div class="comment" id="comment-${comment.id}">
+                <div class="hstack gap-1">
+                    <div class="comment-text">
+                        <p><strong>${comment.user_email}</strong></p>
+                    </div>
+                    <div class="comment-text">
+                        <p>${comment.regist}</p>
+                    </div>
+                    <button class="btn btn-sm float-end ${isCommentOwner ? '' : 'd-none'}" onclick="deleteComment(${comment.id})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    <button class="btn btn-sm float-end ${isCommentOwner ? '' : 'd-none'}" onclick="editComment(${comment.id},this)">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm float-end" onclick="replyComment(${comment.id}, this)">
+                        <i class="bi bi-reply"></i>
+                    </button>
+                </div>
+                <div class="comment-text" id="comment-text-${comment.id}">
+                    <p>${comment.text}</p>
+                </div>
+                <div class="replies">
+                    ${comment.replies.map(reply => {
+                        let isReplyOwner = (user_id && reply.user_id === user_id);
+                        return `
+                            <div class="reply" id="reply-${reply.id}">
+                                <div class="hstack gap-1">
+                                    <div class="reply-text">
+                                        <p><strong>${reply.user_email}</strong></p>
+                                    </div>
+                                    <div class="reply-text">
+                                        <p>${reply.regist}</p>
+                                    </div>
+                                    <button class="btn btn-sm float-end ${isReplyOwner ? '' : 'd-none'}" onclick="deleteReply(${reply.id})">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                    <button class="btn btn-sm float-end ${isReplyOwner ? '' : 'd-none'}" onclick="editReply(${reply.id}, this)">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                </div>
+                                <div class="reply-text" id="reply-text-${reply.id}">
+                                    <p>${reply.text}</p>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                <div class="reply-input d-none" id="reply-input-${comment.id}">
+                    <textarea class="form-control" rows="3"></textarea>
+                    <button class="btn btn-sm btn-primary mt-2" onclick="addReply(${comment.id}, this)">완료</button>
+                    <button class="btn btn-sm btn-secondary mt-2" onclick="cancelReply(${comment.id}, this)">취소</button>
+                </div>
+            </div>
+        `;
+        commentsList.append(commentHtml);
+    });
+}
 // 댓글 추가
-function addComment(lecture_id,user_id) {
-    let text = $('#addComment_text').val();
-    if (text != null) {
+function addComment(lecture_id) {
+    var text = $('#addComment_text').val();
+    if (text != "") {
         Request('/api/comment', 'POST', {
                 'lecture_id': lecture_id,
                 'user_id': user_id,
@@ -434,7 +462,8 @@ function addComment(lecture_id,user_id) {
             .then(function(response) {
                 if (response.status === 200) {
                     alert(response.message);
-                    getComments(lecture_id,user_id);
+                    $('#addComment_text').val("")
+                    getComments(lecture_id);
                 } else {
                     alert(response.message);
                 }
@@ -446,103 +475,148 @@ function addComment(lecture_id,user_id) {
 }
 // 댓글 삭제
 function deleteComment(id) {
-    if (checkRole()) {
-      if (confirm('삭제하시겠습니까?')) {
-          Request('/api/comment?id=' + id, 'DELETE', null)
-          .then(function(response) {
-                if (response.status === 200) {
-                    alert(response.message);
-                     window.location.href = '/main';
-                } else {
-                    alert(response.message);
-                }
-          })
-          .catch(function(error) {
-              alert(error.responseText);
-          });
-      }
+    if (confirm('삭제하시겠습니까?')) {
+        Request('/api/comment?id=' + id, 'DELETE', null)
+        .then(function(response) {
+            if (response.status === 200) {
+                alert(response.message);
+                getComments(lecture_id);
+            } else {
+                alert(response.message);
+            }
+        })
+        .catch(function(error) {
+            alert(error.responseText);
+        });
     }
 }
+// 댓글 수정 작업을 위한 자바스크립트 작업
+function editComment(commentId, button) {
+    let commentTextElement = $(`#comment-text-${commentId}`);
+    let currentText = commentTextElement.find('p').text();
+
+    // 변경된 부분: 수정 버튼을 취소 버튼으로 변경
+    $(button).attr('onclick', `cancelEditComment(${commentId}, '${currentText}', this)`);
+    $(button).html(`<i class="bi bi-x-circle"></i>`); // 아이콘 변경 (선택 사항)
+
+    commentTextElement.html(`
+        <textarea class="form-control" rows="3">${currentText}</textarea>
+        <button class="btn btn-sm btn-primary mt-2" onclick="saveComment(${commentId}, this)">저장</button>
+    `);
+}
 // 댓글 수정
-function saveComment(id) {
-    if (checkValidity('editLectureForm')) {
-        Request('/api/comment?id='+id, 'PUT', {
-                'text': $('#addComment_text').val()
+function saveComment(id, button) {
+    Request('/api/comment?id=' + id, 'PUT', {
+        'text': $(`#comment-text-${id} textarea`).val()
+    })
+    .then(function(response) {
+        if (response.status === 200) {
+            alert(response.message);
+            getComments(lecture_id);
+        } else {
+            alert(response.message);
+        }
+    })
+    .catch(function(error) {
+        alert(error.responseText);
+    });
+}
+// 댓글 수정 취소
+function cancelEditComment(commentId, originalText, button) {
+    let commentTextElement = $(`#comment-text-${commentId}`);
+    commentTextElement.html(`<p>${originalText}</p>`);
+    // 변경된 부분: 취소 버튼을 수정 버튼으로 변경
+    $(button).attr('onclick', `editComment(${commentId}, this)`);
+    $(button).html(`<i class="bi bi-pencil"></i>`); // 아이콘 변경 (선택 사항)
+}
+
+//_______________대댓글__________________________
+// 대댓글 작성 입력창 보이기
+function replyComment(commentId, button) {
+    let replyInputElement = $(`#reply-input-${commentId}`);
+    replyInputElement.removeClass('d-none');
+}
+// 대댓글 작성 취소
+function cancelReply(commentId, button) {
+    let replyInputElement = $(`#reply-input-${commentId}`);
+    replyInputElement.addClass('d-none');
+}
+// 대댓글 저장
+function addReply(comment_id, button) {
+    let text = $(`#reply-input-${comment_id} textarea`).val();
+    if (text != "") {
+        Request('/api/reply', 'POST', {
+                'comment_id': comment_id,
+                'user_id': user_id,
+                'text': text
             })
             .then(function(response) {
                 if (response.status === 200) {
                     alert(response.message);
-                    location.href = location.href;
+                    getComments(lecture_id);
                 } else {
                     alert(response.message);
                 }
             })
             .catch(function(error) {
-                alert(error.responseText);
+                alert(error);
             });
     }
 }
-
-// 댓글 수정 작업을 위한 자바스크립트 작업
-function editComment(commentId, button) {
-    if ($(button).data('editing') === true) {
-        return; // 이미 수정 중인 경우 아무 작업도 하지 않음
+// 대댓글 삭제
+function deleteReply(id) {
+    if (confirm('삭제하시겠습니까?')) {
+        Request('/api/reply?id=' + id, 'DELETE', null)
+        .then(function(response) {
+            if (response.status === 200) {
+                alert(response.message);
+                getComments(lecture_id);
+            } else {
+                alert(response.message);
+            }
+        })
+        .catch(function(error) {
+            alert(error.responseText);
+        });
     }
-    $(button).data('editing', true);
-
-    let commentTextElement = $(`#comment-text-${commentId}`);
-    let currentText = commentTextElement.find('p').text();
-    commentTextElement.html(`
-        <textarea class="form-control" rows="3">${currentText}</textarea>
-        <button class="btn btn-sm btn-primary mt-2" onclick="saveComment(${commentId}, this)">저장</button>
-        <button class="btn btn-sm btn-secondary mt-2" onclick="cancelEditComment(${commentId}, '${currentText}', this)">취소</button>
-    `);
 }
-function cancelEditComment(commentId, originalText, button) {
-    let commentTextElement = $(`#comment-text-${commentId}`);
-    commentTextElement.html(`<p>${originalText}</p>`);
-    $(`button[onclick="editComment(${commentId}, this)"]`).data('editing', false);
-}
+// 대댓글 수정 작업을 위한 자바스크립트 작업
 function editReply(replyId, button) {
-    if ($(button).data('editing') === true) {
-        return; // 이미 수정 중인 경우 아무 작업도 하지 않음
-    }
-    $(button).data('editing', true);
-
     let replyTextElement = $(`#reply-text-${replyId}`);
     let currentText = replyTextElement.find('p').text();
+
+    // 변경된 부분: 수정 버튼을 취소 버튼으로 변경
+    $(button).attr('onclick', `cancelEditReply(${replyId}, '${currentText}', this)`);
+    $(button).html(`<i class="bi bi-x-circle"></i>`); // 아이콘 변경 (선택 사항)
+
     replyTextElement.html(`
         <textarea class="form-control" rows="3">${currentText}</textarea>
-        <button class="btn btn-sm btn-primary mt-2" onclick="saveReply(${replyId}, this)">저장</button>
-        <button class="btn btn-sm btn-secondary mt-2" onclick="cancelEditReply(${replyId}, '${currentText}', this)">취소</button>
+        <button class="btn btn-sm btn-primary mt-2" onclick="saveReplyEdit(${replyId}, this)">저장</button>
     `);
 }
+// 대댓글 수정 취소
 function cancelEditReply(replyId, originalText, button) {
     let replyTextElement = $(`#reply-text-${replyId}`);
     replyTextElement.html(`<p>${originalText}</p>`);
-    $(`button[onclick="editReply(${replyId}, this)"]`).data('editing', false);
+
+    // 변경된 부분: 취소 버튼을 수정 버튼으로 변경
+    $(button).attr('onclick', `editReply(${replyId}, this)`);
+    $(button).html(`<i class="bi bi-pencil"></i>`); // 아이콘 변경 (선택 사항)
 }
-
-//_______________댓글__________________________
-
-// 사용자 권한 확인
-function checkRole(){
-     const token = Cookies.get('Authorization'); // JWT가 저장된 쿠키의 이름을 넣으세요
-     if (token) {
-         try {
-             const decoded = jwt_decode(token);
-             if(decoded.auth === "MANAGER"){
-                 return true;
-             }else{
-                 alert('MANAGER 권한이 필요합니다.');
-                 return false;
-             }
-         } catch (error) {
-             alert('JWT decoding Error');
-             location.href = '/';
-         }
-     } else {
-         alert('로그인이 필요합니다.');
-         location.href = '/login';
-     }
- }
+// 대댓글 수정 저장
+function saveReplyEdit(id, button) {
+    Request('/api/reply?id=' + id, 'PUT', {
+        'text': $(`#reply-text-${id} textarea`).val()
+    })
+    .then(function(response) {
+        if (response.status === 200) {
+            alert(response.message);
+            getComments(lecture_id);
+        } else {
+            alert(response.message);
+        }
+    })
+    .catch(function(error) {
+        alert(error.responseText);
+    });
+}

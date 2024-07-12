@@ -1,10 +1,13 @@
 package com.example.Sparta.entity;
 
+import com.example.Sparta.dto.CommentUpdateDTO;
 import com.example.Sparta.dto.LectureRequestDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +32,10 @@ public class Comment {
     @Column(name="text", nullable = false, columnDefinition = "TEXT")
     private String text;
 
+    @CreationTimestamp
+    @Column(name="regist")
+    private LocalDateTime regist;
+
     @OneToMany(mappedBy = "comment", orphanRemoval = true, cascade = CascadeType.REMOVE)
     private List<Reply> replies = new ArrayList<>();
 
@@ -38,7 +45,7 @@ public class Comment {
         this.text = text;
     }
 
-    public void update(String text) {
-        this.text = text;
+    public void update(CommentUpdateDTO commentUpdateDTO) {
+        this.text = commentUpdateDTO.getText();
     }
 }
