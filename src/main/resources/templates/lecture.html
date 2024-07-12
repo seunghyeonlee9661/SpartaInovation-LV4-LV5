@@ -21,13 +21,18 @@
                 <div class="p-1 ">
                     <a class="btn btn-secondary me-2" th:id="${id}" th:onclick="deleteLecture(this.getAttribute('id'));"><i class="bi bi-trash3"></i></a>
                 </div>
+
             </div>
             <hr>
             <div class="hstack gap-3">
-                <p id="lecturePrice" class="p-2 blog-post-meta"></p>
-                <p id="lectureCategory" class="p-2 blog-post-meta"></p>
-                <p id="lectureTeacher" class="p-2 blog-post-meta"></p>
-                <p id="lectureDate" class="p-2 blog-post-meta"></p>
+                <p id="lecturePrice" class="p-2 blog-post-meta m-0"></p>
+                <p id="lectureCategory" class="p-2 blog-post-meta m-0"></p>
+                <p id="lectureTeacher" class="p-2 blog-post-meta m-0"></p>
+                <p id="lectureDate" class="p-2 blog-post-meta m-0"></p>
+                <span class="heart-icon" onclick="setLike()" id="likeButton" style="cursor: pointer;">
+                    <i id="heartIcon" class="bi bi-heart fa-2x"></i>
+                    <span id="likeCnt" class="ms-2"></span>
+                </span>
             </div>
             <p id="lectureIntroduction" class="p-2 blog-post-meta"></p>
 
@@ -106,7 +111,7 @@
     var user_id;
     var lecture_id;
     $(document).ready(function() {
-        user_id = /*[[${user != null ? user.id : 'null'}]]*/ null;
+        user_id = /*[[${user != null ? user.id : null }]]*/ null;
         lecture_id = /*[[${id}]]*/;
         getLecture(lecture_id);
     });

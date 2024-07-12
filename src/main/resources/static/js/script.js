@@ -132,10 +132,10 @@ function getTeacher(id) {
                 $('#editTeacher_name').val(teacher.name);
                 $('#editTeacher_year').val(teacher.year);
                 $('#editTeacher_company').val(teacher.company);
-                var phone = teacher.phone;
-                $('#editTeacher_phone1').val(phone.substring(0, 3));
-                $('#editTeacher_phone2').val(phone.substring(3, 7));
-                $('#editTeacher_phone3').val(phone.substring(7, 11));
+//                var phone = teacher.phone;
+//                $('#editTeacher_phone1').val(phone.substring(0, 3));
+//                $('#editTeacher_phone2').val(phone.substring(3, 7));
+//                $('#editTeacher_phone3').val(phone.substring(7, 11));
                 $('#editTeacher_introduction').val(teacher.introduction);
 
                 // 강의 목록 업데이트
@@ -186,7 +186,7 @@ function editTeacher(id) {
                 'name': $('#editTeacher_name').val(),
                 'year': $('#editTeacher_year').val(),
                 'company': $('#editTeacher_company').val(),
-                'phone': $('#editTeacher_phone1').val() + $('#editTeacher_phone2').val() + $('#editTeacher_phone3').val(),
+//                'phone': $('#editTeacher_phone1').val() + $('#editTeacher_phone2').val() + $('#editTeacher_phone3').val(),
                 'introduction': $('#editTeacher_introduction').val()
             })
             .then(function(response) {
@@ -274,6 +274,10 @@ function getLecture(id) {
                 $('#lectureIntroduction').text(lecture.introduction);
                 // 댓글과 대댓글 작성
                 setComments(lecture.comments);
+                if(user_id != null){
+                    checkLike();
+                }
+                document.getElementById('likeCnt').textContent = lecture.likes;
             } else {
                 alert(response.message);
             }
@@ -386,7 +390,6 @@ function getComments(id) {
 }
 // 댓글 목록 정렬하는 코드
 function setComments(comments){
-    console.log("user_id : " + user_id )
     let commentsList = $('#commentsList');
     commentsList.empty(); // 기존 댓글 초기화
 
@@ -598,7 +601,6 @@ function editReply(replyId, button) {
 function cancelEditReply(replyId, originalText, button) {
     let replyTextElement = $(`#reply-text-${replyId}`);
     replyTextElement.html(`<p>${originalText}</p>`);
-
     // 변경된 부분: 취소 버튼을 수정 버튼으로 변경
     $(button).attr('onclick', `editReply(${replyId}, this)`);
     $(button).html(`<i class="bi bi-pencil"></i>`); // 아이콘 변경 (선택 사항)
@@ -619,4 +621,54 @@ function saveReplyEdit(id, button) {
     .catch(function(error) {
         alert(error.responseText);
     });
+}
+
+//_______________좋아요__________________________
+// 대댓글 작성 입력창 보이기
+function checkLike() {
+    Request('/api/like', 'GET',
+        { 'lecture_id': lecture_id, 'user_id': user_id }
+        )
+        .then(function(response) {
+            if (response.status === 200) {
+                var heartIcon = document.getElementById('heartIcon');
+                if(response.data){
+                    heartIcon.classList.remove('bi-heart-fill'); // 색칠된 하트 클래스 제거
+                    heartIcon.classList.add('bi-heart'); // 빈 하트 클래스 추가
+                } else {
+                    heartIcon.classList.remove('bi-heart'); // 빈 하트 클래스 제거
+                    heartIcon.classList.add('bi-heart-fill'); // 색칠된 하트 클래스 추가
+                }
+            } else {
+                alert(response.message);
+            }
+        })
+        .catch(function(error) {
+            alert(error.responseText);
+        });
+}
+// 댓글 추가
+function setLike() {
+    Request('/api/like', 'POST', {
+            'lecture_id': lecture_id,
+            'user_id': user_id
+        })
+        .then(function(response) {
+            if (response.status === 200) {
+                var heartIcon = document.getElementById('heartIcon');
+                if (heartIcon.classList.contains('bi-heart-fill')) {
+                    heartIcon.classList.remove('bi-heart-fill'); // 색칠된 하트 클래스 제거
+                    heartIcon.classList.add('bi-heart'); // 빈 하트 클래스 추가
+                } else {
+                    heartIcon.classList.remove('bi-heart'); // 빈 하트 클래스 제거
+                    heartIcon.classList.add('bi-heart-fill'); // 색칠된 하트 클래스 추가
+                }
+                document.getElementById('likeCnt').textContent = response.data;
+            } else {
+                alert(response.message);
+            }
+        })
+        .catch(function(error) {
+            alert(error.responseText);
+        });
 }

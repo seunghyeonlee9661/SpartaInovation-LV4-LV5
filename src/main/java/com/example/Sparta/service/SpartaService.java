@@ -27,16 +27,18 @@ public class SpartaService {
     private final LectureRepository lectureRepository;
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
+    private final LikeRepository likeRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     @Autowired
-    public SpartaService(UserRepository userRepository, TeacherRepository teacherRepository, LectureRepository lectureRepository, CommentRepository commentRepository, ReplyRepository replyRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public SpartaService(UserRepository userRepository, TeacherRepository teacherRepository, LectureRepository lectureRepository, CommentRepository commentRepository, ReplyRepository replyRepository, LikeRepository likeRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.teacherRepository = teacherRepository;
         this.lectureRepository = lectureRepository;
         this.commentRepository = commentRepository;
         this.replyRepository = replyRepository;
+        this.likeRepository = likeRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
@@ -258,4 +260,39 @@ public class SpartaService {
         }
     }
 
+    /*------------------------대댓글----------------------------------*/
+
+    /* 대댓글 추가 */
+    @Transactional
+    public ResponseDTO findLike(int lecture_id, int user_id){
+        try {
+            Like like = likeRepository.findByLectureIdAndUserId(lecture_id,user_id);
+            if(like == null){
+                return new ResponseDTO(HttpStatus.OK.value(), "true",true);
+            }else{
+                return new ResponseDTO(HttpStatus.OK.value(), "false",false);
+            }
+        } catch (Exception e) {
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
+        }
+    }
+
+    /* 대댓글 수정 */
+    @Transactional
+    public ResponseDTO setLike(LikeRequestDTO likeRequestDTO){
+        try {
+            Like like = likeRepository.findByLectureIdAndUserId(likeRequestDTO.getLecture_id(),likeRequestDTO.getUser_id());
+            Lecture lecture = lectureRepository.findById(likeRequestDTO.getLecture_id()).orElseThrow(()-> new NoSuchElementException("강의가 존재하지 않습니다."));
+            if(like == null){
+                User user = userRepository.findById(likeRequestDTO.getUser_id()).orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+                likeRepository.save(new Like(lecture,user));
+                return new ResponseDTO(HttpStatus.OK.value(), "좋아요 추가", lecture.getLikes().size());
+            }else{
+                likeRepository.delete(like);
+                return new ResponseDTO(HttpStatus.OK.value(), "좋아요 취소", lecture.getLikes().size()-1);
+            }
+        } catch (Exception e) {
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
+        }
+    }
 }

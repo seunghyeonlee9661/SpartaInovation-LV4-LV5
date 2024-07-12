@@ -1,6 +1,5 @@
 package com.example.Sparta.dto;
 import com.example.Sparta.entity.Comment;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

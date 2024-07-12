@@ -137,15 +137,20 @@ public class SpartaRestController {
         return spartaService.createComment(commentRequestDTO);
     }
 
-    /* 강사 삭제 */
+    /* 댓글 삭제 */
     @DeleteMapping("/comment")
     public ResponseDTO removeComment(@RequestParam("id") int id) {
         return spartaService.removeComment(id);
     }
 
-    /* 강사 수정 */
+    /* 댓글 수정 */
     @PutMapping("/comment")
-    public ResponseDTO updateComment(@RequestBody CommentUpdateDTO commentUpdateDTO, @RequestParam("id") int id) {
+    public ResponseDTO updateComment(@RequestBody @Valid CommentUpdateDTO commentUpdateDTO, @RequestParam("id") int id, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            // 검증 오류가 발생한 경우
+            String errorMessage = bindingResult.getFieldError().getDefaultMessage();
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(),errorMessage,null);
+        }
         return spartaService.updateComment(id, commentUpdateDTO);
     }
 
@@ -170,8 +175,32 @@ public class SpartaRestController {
 
     /* 강사 수정 */
     @PutMapping("/reply")
-    public ResponseDTO updateReply(@RequestBody ReplyUpdateDTO replyUpdateDTO, @RequestParam("id") int id) {
+    public ResponseDTO updateReply(@RequestBody @Valid ReplyUpdateDTO replyUpdateDTO, @RequestParam("id") int id, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            // 검증 오류가 발생한 경우
+            String errorMessage = bindingResult.getFieldError().getDefaultMessage();
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(),errorMessage,null);
+        }
         return spartaService.updateReply(id, replyUpdateDTO);
+    }
+
+    /*____________________좋아요_________________________*/
+
+    /* 사용자 좋아요 확인 */
+    @GetMapping("/like")
+    public ResponseDTO findLike(@RequestParam("lecture_id") int lecture_id,@RequestParam("user_id") int user_id) {
+        return spartaService.findLike(lecture_id,user_id);
+    }
+
+    /* 사용자 좋아요 변경 */
+    @PostMapping("/like")
+    public ResponseDTO createLike(@RequestBody @Valid LikeRequestDTO likeRequestDTO, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            // 검증 오류가 발생한 경우
+            String errorMessage = bindingResult.getFieldError().getDefaultMessage();
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(),errorMessage,null);
+        }
+        return spartaService.setLike(likeRequestDTO);
     }
 
 }

@@ -11,7 +11,6 @@ public class TeacherResponseDTO {
     private String name;
     private int year;
     private String company;
-    private String phone;
     private String introduction;
     private List<SimpleLectureResponseDTO> lectures;
 
@@ -20,7 +19,6 @@ public class TeacherResponseDTO {
         this.name = teacher.getName();
         this.year = teacher.getYear();
         this.company = teacher.getCompany();
-        this.phone = teacher.getPhone();
         this.introduction = teacher.getIntroduction();
         this.lectures = teacher.getLectures().stream().map(SimpleLectureResponseDTO::new).collect(Collectors.toList());
     }
