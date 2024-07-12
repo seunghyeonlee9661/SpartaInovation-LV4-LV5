@@ -103,6 +103,7 @@ function deleteTeacher(id) {
                 }
             })
             .catch(function(error) {
+                console.log(error);
                 alert(error.responseText);
             });
         }
@@ -171,7 +172,13 @@ function getLectures(page,category) {
                     html += '<tr>';
                     html += '<td><a href="/lecture/' + lecture.id + '">' + lecture.title + '</a></td>';
                     html += '<td>' + lecture.price + '</td>';
-                    html += '<td>' + lecture.teacher.name + '</td>';
+                    var teacher_name;
+                    if(lecture.teacher != null){
+                        teacher_name = lecture.teacher.name;
+                    }else{
+                        teacher_name = "미정"
+                    }
+                    html += '<td>' + teacher_name + '</td>';
                     html += '<td>' + lecture.category + '</td>';
                     html += '<td>' + getFormattedDate(lecture.regist) + '</td>';
                     html += '</tr>';
@@ -199,7 +206,13 @@ function getLecture(id) {
                 $('#lectureTitle').text(lecture.title);
                 $('#lecturePrice').text(lecture.price);
                 $('#lectureCategory').text(lecture.category);
-                $('#lectureTeacher').text(lecture.teacher.name);
+                var teacher_name;
+                if(lecture.teacher != null){
+                    teacher_name = lecture.teacher.name;
+                }else{
+                    teacher_name = "미정"
+                }
+                $('#lectureTeacher').text(teacher_name);
                 $('#lectureDate').text(getFormattedDate(lecture.regist));
                 $('#lectureIntroduction').text(lecture.introduction);
                 // 댓글과 대댓글 작성
@@ -211,7 +224,12 @@ function getLecture(id) {
                 // 좋아요 갯수
                 document.getElementById('likeCnt').textContent = lecture.likes;
                 // 강의 수정을 위한 교사 목록 불러오는 기능
-                getTeacherList(lecture.teacher.id);
+                if(lecture.teacher != null){
+                    teacher_id = lecture.teacher.id;
+                }else{
+                    teacher_id = null
+                }
+                getTeacherList(teacher_id);
             } else {
                 alert(response.message);
             }
@@ -228,11 +246,12 @@ function getTeacherList(id){
             if (response.status === 200) {
                 var teacherSelect = $('#editLecture_teacher');
                 teacherSelect.empty(); // 기존 옵션들을 모두 지움
+                teacherSelect.append($('<option value="">미정</option>'));
                 $.each(response.data, function(index, teacher) {
                     var option = $('<option></option>')
                         .attr('value', teacher.id)
                         .text(teacher.name);
-                    if (teacher.id === id) {
+                    if (id != null && teacher.id === id) {
                         option.attr('selected', 'selected'); // 기본 선택 항목 설정
                     }
                     teacherSelect.append(option);

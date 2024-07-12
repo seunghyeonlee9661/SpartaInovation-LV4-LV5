@@ -137,7 +137,7 @@ public class LectureService {
     @Transactional
     public ResponseDTO createLecture(LectureRequestDTO lectureRequestDTO){
         try {
-            Teacher teacher = teacherRepository.findById(lectureRequestDTO.getTeacher_id()).orElseThrow(() -> new IllegalArgumentException("강사가 존재하지 않습니다."));
+            Teacher teacher = teacherRepository.findById(lectureRequestDTO.getTeacher_id()).orElse(null);
             Lecture lecture = new Lecture(lectureRequestDTO, teacher);
             lectureRepository.save(lecture);
             return new ResponseDTO(HttpStatus.OK.value(), "강의 정보 생성 완료", new LectureResponseDTO(lecture));
@@ -150,7 +150,7 @@ public class LectureService {
     @Transactional
     public ResponseDTO updateLecture(int id, LectureRequestDTO lectureRequestDTO){
         try {
-            Teacher teacher = teacherRepository.findById(lectureRequestDTO.getTeacher_id()).orElseThrow(() -> new IllegalArgumentException("강사가 존재하지 않습니다."));
+            Teacher teacher = teacherRepository.findById(lectureRequestDTO.getTeacher_id()).orElse(null);
             Lecture lecture = lectureRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("강의가 존재하지 않습니다."));
             lecture.update(lectureRequestDTO, teacher);
             return new ResponseDTO(HttpStatus.OK.value(), "강의 정보 수정 완료", new LectureResponseDTO(lecture));

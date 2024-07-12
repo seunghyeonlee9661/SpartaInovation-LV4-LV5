@@ -34,7 +34,7 @@ public class Teacher {
     @Column(name="introduction", nullable = false, columnDefinition = "TEXT")
     private String introduction;
 
-    @OneToMany(mappedBy = "teacher", orphanRemoval = true, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "teacher")
     private List<Lecture> lectures = new ArrayList<>();
 
     public Teacher(TeacherRequestDTO requestDto) {
@@ -51,5 +51,12 @@ public class Teacher {
         this.company = requestDto.getCompany();
         this.phone = requestDto.getPhone();
         this.introduction = requestDto.getIntroduction();
+    }
+
+    @PreRemove
+    private void preRemove() {
+        for (Lecture lecture : lectures) {
+            lecture.removeTeacher(); // 관계 해제
+        }
     }
 }

@@ -39,13 +39,13 @@ public class Lecture {
     private LectureCategory category;
 
     @ManyToOne
-    @JoinColumn(name="teacher_id", nullable = false)
+    @JoinColumn(name="teacher_id", nullable = true)
     private Teacher teacher;
 
     @OneToMany(mappedBy = "lecture", orphanRemoval = true, cascade = CascadeType.REMOVE)
     private List<Like> likes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "lecture", orphanRemoval = true, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "lecture")
     private List<Comment> comments = new ArrayList<>();
 
     @CreationTimestamp
@@ -66,5 +66,9 @@ public class Lecture {
         this.introduction = requestDto.getIntroduction();
         this.category = requestDto.getCategory();
         this.teacher = teacher;
+    }
+
+    public void removeTeacher(){
+        this.teacher = null;
     }
 }

@@ -161,8 +161,8 @@
                     <!-- 강사 -->
                     <div class="mb-3">
                         <label for="addLecture_teacher" class="form-label">강사</label>
-                        <select id="addLecture_teacher" name="addLecture_teacher" class="form-control" required>
-                            <option value="">...</option>
+                        <select id="addLecture_teacher" name="addLecture_teacher" class="form-control">
+                            <option value="">미정</option>
                             <option th:each="teacher : ${teachers}" th:text="${teacher.name}" th:value="${teacher.id}"></option>
                         </select>
                     </div>

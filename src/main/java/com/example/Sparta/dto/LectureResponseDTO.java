@@ -26,7 +26,7 @@ public class LectureResponseDTO {
         this.price = lecture.getPrice();
         this.introduction = lecture.getIntroduction();
         this.category = lecture.getCategory();
-        this.teacher = new SimpleTeacherResponseDTO(lecture.getTeacher());
+        this.teacher = (lecture.getTeacher() == null) ? null : new SimpleTeacherResponseDTO(lecture.getTeacher());
         this.regist = lecture.getRegist();
         this.comments = lecture.getComments().stream().map(CommentResponseDTO::new).collect(Collectors.toList());
         this.likes = lecture.getLikes().size();

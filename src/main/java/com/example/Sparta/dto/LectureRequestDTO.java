@@ -19,7 +19,6 @@ public class LectureRequestDTO {
 
     @NotNull
     private LectureCategory category;
-
-    @NotNull
+    
     private int teacher_id;
 }
