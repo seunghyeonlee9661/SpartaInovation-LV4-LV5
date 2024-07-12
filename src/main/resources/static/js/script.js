@@ -69,12 +69,9 @@ function addTeacher() {
                     alert(response.message);
                 }
             })
-            .catch(function(xhr, status, error) {
-                console.log(xhr)
-                console.log(status)
-                console.log(error)
-                alert('서버 오류가 발생했습니다.');
-            })
+            .catch(function(error) {
+                alert(error.responseText);
+            });
     }
 }
 // 강사 목록 불러오기
@@ -96,12 +93,9 @@ function getTeachers() {
             }
             $('#addLecture_teacher').html(selectHtml);
         })
-       .catch(function(xhr, status, error) {
-           console.log(xhr)
-           console.log(status)
-           console.log(error)
-           alert('서버 오류가 발생했습니다.');
-       })
+        .catch(function(error) {
+            alert(error.responseText);
+        });
 }
 // 강사 정보 불러오기
 function getTeacher(id) {
@@ -246,7 +240,7 @@ function getLectures(page,category) {
         });
 }
 // 강의 정보 불러오기
-function getLecture(id) {
+function getLecture(id,user_id) {
     Request('/api/lecture', 'GET', {
           id: id,
         })
@@ -261,7 +255,7 @@ function getLecture(id) {
                 $('#lectureDate').text(getFormattedDate(lecture.regist));
                 $('#lectureIntroduction').text(lecture.introduction);
                 // 댓글과 대댓글 작성
-                setComments(lecture.comments);
+                setComments(lecture.comments,user_id);
             } else {
                 alert(response.message);
             }
@@ -272,70 +266,60 @@ function getLecture(id) {
         });
 }
 
-function getComments(id) {
-    Request('/api/comment', 'GET', {
-          id: id,
-        })
-        .then(function(response) {
-            if (response.status === 200) {
-                setComments(response.data);
-            } else {
-                alert(response.message);
-            }
-        })
-        .catch(function(error) {
-            alert('강의 정보를 불러오는 중 오류가 발생했습니다.');
-            console.log(error);
-        });
-}
-
-function setComments(comments) {
-    // 댓글과 대댓글 작성
+function setComments(comments, user_id) {
+    console.log("user_id : " + user_id )
     let commentsList = $('#commentsList');
     commentsList.empty(); // 기존 댓글 초기화
-    comments.forEach(comment => {
-    let commentHtml = `
-        <div class="comment">
-            <div class="hstack gap-3">
-                <div class="comment-text">
-                    <p><strong>${comment.user_email}</strong></p>
-                </div>
-                <button class="btn btn-sm float-end ms-auto" onclick="deleteComment(${comment.id})">
-                    <i class="bi bi-trash"></i>
-                </button>
-                <button class="btn btn-sm float-end" onclick="editComment(${comment.id})">
-                    <i class="bi bi-pencil"></i>
-                </button>
-            </div>
-            <div class="comment-text">
-                <p>${comment.text}</p>
-            </div>
 
-            <div class="replies">
-                ${comment.replies.map(reply => `
-                    <div class="reply">
-                        <div class="hstack gap-3">
-                            <div class="reply-text">
-                                <p><strong>${reply.user_email}</strong></p>
-                            </div>
-                            <button class="btn btn-sm float-end ms-auto" onclick="deleteReply(${reply.id})">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                            <button class="btn btn-sm float-end" onclick="editReply(${reply.id})">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                        </div>
-                        <div class="reply-text">
-                            <p>${reply.text}</p>
-                        </div>
+    comments.forEach(comment => {
+        let isCommentOwner = (user_id && comment.user_id === user_id);
+
+        let commentHtml = `
+            <div class="comment" id="comment-${comment.id}">
+                <div class="hstack gap-1">
+                    <div class="comment-text">
+                        <p><strong>${comment.user_email}</strong></p>
                     </div>
-                `).join('')}
+                    <button class="btn btn-sm float-end ${isCommentOwner ? '' : 'd-none'}" onclick="deleteComment(${comment.id})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    <button class="btn btn-sm float-end ${isCommentOwner ? '' : 'd-none'}" onclick="editComment(${comment.id}, this)" data-editing="false">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                </div>
+                <div class="comment-text" id="comment-text-${comment.id}">
+                    <p>${comment.text}</p>
+                </div>
+                <div class="replies">
+                    ${comment.replies.map(reply => {
+                        let isReplyOwner = (user_id && reply.user_id === user_id);
+                        return `
+                            <div class="reply" id="reply-${reply.id}">
+                                <div class="hstack gap-1">
+                                    <div class="reply-text">
+                                        <p><strong>${reply.user_email}</strong></p>
+                                    </div>
+                                    <button class="btn btn-sm float-end ${isReplyOwner ? '' : 'd-none'}" onclick="deleteReply(${reply.id})">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                    <button class="btn btn-sm float-end ${isReplyOwner ? '' : 'd-none'}" onclick="editReply(${reply.id}, this)" data-editing="false">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                </div>
+                                <div class="reply-text" id="reply-text-${reply.id}">
+                                    <p>${reply.text}</p>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
             </div>
-        </div>
-    `;
-    commentsList.append(commentHtml);
+        `;
+        commentsList.append(commentHtml);
     });
 }
+
+
 
 // 강의 수정을 위한 강사 목록 불러오기
 function getTeacherList() {
@@ -421,6 +405,23 @@ function editLecture(id) {
     }
 }
 //_______________댓글__________________________
+//댓글 불러오기
+function getComments(id,user_id) {
+    Request('/api/comment', 'GET', {
+          id: id,
+        })
+        .then(function(response) {
+            if (response.status === 200) {
+                setComments(response.data,user_id);
+            } else {
+                alert(response.message);
+            }
+        })
+        .catch(function(error) {
+            alert('강의 정보를 불러오는 중 오류가 발생했습니다.');
+            console.log(error);
+        });
+}
 // 댓글 추가
 function addComment(lecture_id,user_id) {
     let text = $('#addComment_text').val();
@@ -433,7 +434,7 @@ function addComment(lecture_id,user_id) {
             .then(function(response) {
                 if (response.status === 200) {
                     alert(response.message);
-                    getComments(lecture_id);
+                    getComments(lecture_id,user_id);
                 } else {
                     alert(response.message);
                 }
@@ -463,7 +464,7 @@ function deleteComment(id) {
     }
 }
 // 댓글 수정
-function editComment(id) {
+function saveComment(id) {
     if (checkValidity('editLectureForm')) {
         Request('/api/comment?id='+id, 'PUT', {
                 'text': $('#addComment_text').val()
@@ -481,6 +482,47 @@ function editComment(id) {
             });
     }
 }
+
+// 댓글 수정 작업을 위한 자바스크립트 작업
+function editComment(commentId, button) {
+    if ($(button).data('editing') === true) {
+        return; // 이미 수정 중인 경우 아무 작업도 하지 않음
+    }
+    $(button).data('editing', true);
+
+    let commentTextElement = $(`#comment-text-${commentId}`);
+    let currentText = commentTextElement.find('p').text();
+    commentTextElement.html(`
+        <textarea class="form-control" rows="3">${currentText}</textarea>
+        <button class="btn btn-sm btn-primary mt-2" onclick="saveComment(${commentId}, this)">저장</button>
+        <button class="btn btn-sm btn-secondary mt-2" onclick="cancelEditComment(${commentId}, '${currentText}', this)">취소</button>
+    `);
+}
+function cancelEditComment(commentId, originalText, button) {
+    let commentTextElement = $(`#comment-text-${commentId}`);
+    commentTextElement.html(`<p>${originalText}</p>`);
+    $(`button[onclick="editComment(${commentId}, this)"]`).data('editing', false);
+}
+function editReply(replyId, button) {
+    if ($(button).data('editing') === true) {
+        return; // 이미 수정 중인 경우 아무 작업도 하지 않음
+    }
+    $(button).data('editing', true);
+
+    let replyTextElement = $(`#reply-text-${replyId}`);
+    let currentText = replyTextElement.find('p').text();
+    replyTextElement.html(`
+        <textarea class="form-control" rows="3">${currentText}</textarea>
+        <button class="btn btn-sm btn-primary mt-2" onclick="saveReply(${replyId}, this)">저장</button>
+        <button class="btn btn-sm btn-secondary mt-2" onclick="cancelEditReply(${replyId}, '${currentText}', this)">취소</button>
+    `);
+}
+function cancelEditReply(replyId, originalText, button) {
+    let replyTextElement = $(`#reply-text-${replyId}`);
+    replyTextElement.html(`<p>${originalText}</p>`);
+    $(`button[onclick="editReply(${replyId}, this)"]`).data('editing', false);
+}
+
 //_______________댓글__________________________
 
 // 사용자 권한 확인
@@ -501,6 +543,6 @@ function checkRole(){
          }
      } else {
          alert('로그인이 필요합니다.');
-         location.href = '/';
+         location.href = '/login';
      }
  }

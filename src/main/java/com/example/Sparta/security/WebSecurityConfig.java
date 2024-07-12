@@ -3,8 +3,9 @@ package com.example.Sparta.security;
 import com.example.Sparta.filter.JwtAuthenticationFilter;
 import com.example.Sparta.filter.JwtAuthorizationFilter;
 import com.example.Sparta.filter.LoginRedirectFilter;
+import com.example.Sparta.global.AccessDeniedHandler;
+import com.example.Sparta.global.AuthenticationEntryPoint;
 import com.example.Sparta.global.JwtUtil;
-import com.example.Sparta.global.UserInterceptor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,12 +28,16 @@ public class WebSecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final LoginRedirectFilter loginRedirectFilter;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
+    private final AccessDeniedHandler accessDeniedHandler;
 
-    public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration,LoginRedirectFilter loginRedirectFilter) {
+    public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration, LoginRedirectFilter loginRedirectFilter, AuthenticationEntryPoint authenticationEntryPoint, AccessDeniedHandler accessDeniedHandler) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
         this.authenticationConfiguration = authenticationConfiguration;
         this.loginRedirectFilter = loginRedirectFilter;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Bean
@@ -65,18 +70,21 @@ public class WebSecurityConfig {
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         // '/api/user/'로 시작하는 요청 모두 접근 허가
                         .requestMatchers("/api/user/**").permitAll()
-                        // 메인 페이지 : 허용
-                        .requestMatchers("/").permitAll()
-                        .requestMatchers("/teacher").permitAll()
-                        .requestMatchers("/lecture").permitAll()
-//                      // 강사 목록 불러오는 요청 : 허용
+                        .requestMatchers("/teacher","/lecture","/teacher/*","/lecture/*","/","/error").permitAll()
+                        // 강사 목록 불러오는 요청 : 허용
                         .requestMatchers(HttpMethod.GET, "/api/teacher").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/teachers").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/lecture").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/teachers").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/lectures").permitAll()
                         // 그 외 모든 요청 인증처리
                         .anyRequest().authenticated()
         );
+
+        // 에러 처리를 위한 핸들러 설정
+        http.exceptionHandling((exceptionHandling) -> {
+            exceptionHandling.accessDeniedHandler(accessDeniedHandler);
+            exceptionHandling.authenticationEntryPoint(authenticationEntryPoint);
+        });
 
         http.formLogin((formLogin) -> formLogin.
                 loginPage("/login")
@@ -91,6 +99,7 @@ public class WebSecurityConfig {
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         // 로그인 유저 리다이렉트 필터
         http.addFilterBefore(loginRedirectFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 

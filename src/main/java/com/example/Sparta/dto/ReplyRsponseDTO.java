@@ -9,13 +9,13 @@ import lombok.Getter;
 public class ReplyRsponseDTO {
     private int id;
     private int user_id;
-    private String user_Email;
+    private String user_email;
     private String text;
 
     public ReplyRsponseDTO(Reply reply){
         this.id = reply.getId();
         this.user_id = reply.getUser().getId();
-        this.user_Email = reply.getUser().getEmail();
+        this.user_email = reply.getUser().getEmail();
         this.text = reply.getText();
     }
 }

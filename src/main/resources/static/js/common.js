@@ -1,3 +1,18 @@
+// 현재 접근이 올바르지 않을 경우에 오류를 반환합니다.
+document.addEventListener('DOMContentLoaded', (event) => {
+    const originalFetch = fetch;
+    window.fetch = function(...args) {
+        return originalFetch(...args).then(response => {
+            if (response.status === 403) {
+                alert("You do not have permission to access this page.");
+            } else if (response.status === 401) {
+                alert("You need to log in to access this page.");
+            }
+            return response.message;
+        });
+    };
+});
+
 // 특정 길이 이상 입력되면 자르는 함수
 function maxLengthCheck(object) {
     if (object.value.length > object.maxLength) {
@@ -77,7 +92,6 @@ function checkValidity(id) {
     form.classList.add('was-validated');
     return true;
 }
-
 // 로그아웃
 function logout() {
   if(confirm("로그아웃 하시겠습니까?")){
