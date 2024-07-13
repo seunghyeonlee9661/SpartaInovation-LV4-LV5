@@ -158,10 +158,12 @@ function addLecture() {
     }
 }
 // 강의 목록 불러오기
-function getLectures(page,category) {
+function getLectures(page,category,option,desc) {
     Request('/api/lectures', 'GET', {
             page: page,
-            category: category
+            category: category,
+            option: option,
+            desc: desc
         })
         .then(function(response) {
             if (response.status === 200) {

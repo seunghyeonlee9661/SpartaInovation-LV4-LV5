@@ -23,7 +23,7 @@ public class LectureRestController {
 
     /* 사용자 추가 */
     @PostMapping("/user/signup")
-    public ResponseDTO createUser(@RequestBody @Valid UserRequestDTO requestDTO, BindingResult bindingResult) {
+    public ResponseDTO createUser(@Valid @RequestBody UserRequestDTO requestDTO) {
         return lectureService.createUser(requestDTO);
     }
 
@@ -41,8 +41,11 @@ public class LectureRestController {
 
     /* 강의 목록 불러오기 */
     @GetMapping("/lectures")
-    public ResponseDTO findLectures(@RequestParam(value="page", defaultValue="0") int page, @RequestParam(value="category", defaultValue="") String category) {
-        return lectureService.findLectures(page, category);
+    public ResponseDTO findLectures(@RequestParam(value="page", defaultValue="0") int page,
+                                    @RequestParam(value="category", defaultValue="") String category,
+                                    @RequestParam(value="option", defaultValue="") String option,
+                                    @RequestParam(value="desc", defaultValue="") boolean desc) {
+        return lectureService.findLectures(page, category,option,desc);
     }
 
     /* 강의 내용 불러오기 */
@@ -90,7 +93,7 @@ public class LectureRestController {
     /* 강사 추가 */
     @Secured(UserAuthority.Authority.ADMIN)
     @PostMapping("/teacher")
-    public ResponseDTO createTeacher(@RequestBody @Valid TeacherRequestDTO teacherRequestDTO) {
+    public ResponseDTO createTeacher(@Valid @RequestBody TeacherRequestDTO teacherRequestDTO) {
         return lectureService.createLecture(teacherRequestDTO);
     }
 

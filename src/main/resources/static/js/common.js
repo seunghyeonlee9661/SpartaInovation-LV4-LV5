@@ -22,7 +22,7 @@ function maxLengthCheck(object) {
     }
 }
 
- // ajax로 요청 보내는 함수
+ // ajax로 요청 처리하는 함수
  function Request(url, type, data) {
    var ajaxOptions = {
      url: url,
@@ -38,6 +38,7 @@ function maxLengthCheck(object) {
    return $.ajax(ajaxOptions);
  }
 
+// 이전 페이지 이동 함수
 function goBack() { window.history.back(); }
 
 // 날짜 형식 정리하는 자바스크립트
@@ -81,16 +82,16 @@ function setPagination(paging) {
   });
 }
 
-// Validation 확인하는 함수
+// Validation 확인하는 함수 : 해당 기능은 Front 영역에서 입력이 옳바른지 확인합니다. 하지만 Back 영역의 입력 확인 기능을 위해 잠시 기능을 정지했습니다!
 function checkValidity(id) {
-    let form = document.getElementById(id);
-    if (form.checkValidity() === false) {
-        event.preventDefault();
-        event.stopPropagation();
-        form.classList.add('was-validated');
-        return false;
-    }
-    form.classList.add('was-validated');
+//    let form = document.getElementById(id);
+//    if (form.checkValidity() === false) {
+//        event.preventDefault();
+//        event.stopPropagation();
+//        form.classList.add('was-validated');
+//        return false;
+//    }
+//    form.classList.add('was-validated');
     return true;
 }
 
@@ -122,6 +123,7 @@ function signup() {
         });
     }
 }
+
 // 로그인
 function login() {
     if (checkValidity('loginForm')) {
@@ -144,27 +146,30 @@ function login() {
                });
     }
 }
-// 사용자 권한 확인
+
+// 사용자 권한 확인 : 해당 기능은 Front 영역에서 사용자의 권한을 확인합니다. 하지만 Back 영역의 권한 확인 기능을 위해 잠시 기능을 정지했습니다!
 function checkRole(){
-     const token = Cookies.get('Authorization'); // JWT가 저장된 쿠키의 이름을 넣으세요
-     if (token) {
-         try {
-             const decoded = jwt_decode(token);
-             if(decoded.auth === "ADMIN"){
-                 return true;
-             }else{
-                 alert('ADMIN 권한이 필요합니다.');
-                 return false;
-             }
-         } catch (error) {
-             alert('JWT decoding Error');
-             location.href = '/';
-         }
-     } else {
-         alert('로그인이 필요합니다.');
-         location.href = '/login';
-     }
+//     const token = Cookies.get('Authorization'); // JWT가 저장된 쿠키의 이름을 넣으세요
+//     if (token) {
+//         try {
+//             const decoded = jwt_decode(token);
+//             if(decoded.auth === "ADMIN"){
+//                 return true;
+//             }else{
+//                 alert('ADMIN 권한이 필요합니다.');
+//                 return false;
+//             }
+//         } catch (error) {
+//             alert('JWT decoding Error');
+//             location.href = '/';
+//         }
+//     } else {
+//         alert('로그인이 필요합니다.');
+//         location.href = '/login';
+//     }
+    return true;
  }
+
 // 로그아웃
 function logout() {
   if(confirm("로그아웃 하시겠습니까?")){
@@ -172,6 +177,7 @@ function logout() {
       location.href = location.href;
   }
 }
+
 // 회원탈퇴
 function withdraw() {
     Request('/api/user/withdraw', 'POST', {

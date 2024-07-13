@@ -18,9 +18,15 @@ public class LectureViewController {
 
     /* 메인 */
     @GetMapping("/")
-    public String mainPage(@RequestParam(value="page", defaultValue="0") int page, @RequestParam(value="category", defaultValue="") String category, Model model) {
+    public String mainPage(@RequestParam(value="page", defaultValue="0") int page,
+                           @RequestParam(value="category", defaultValue="") String category,
+                           @RequestParam(value="option", defaultValue="") String option,
+                           @RequestParam(value="desc", defaultValue= "true") boolean desc,
+                           Model model) {
         model.addAttribute("page",page);
         model.addAttribute("category",category);
+        model.addAttribute("option",option);
+        model.addAttribute("desc",desc);
         return "main";
     }
 

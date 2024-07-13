@@ -3,6 +3,14 @@
 <head th:replace="layout :: head">
     <!--  헤드 공간  -->
 </head>
+<style>
+    .asc::after {
+        content: " ▲";
+    }
+    .desc::after {
+        content: " ▼";
+    }
+</style>
 <body>
 <!--  상단바 공간  -->
 <header th:replace="layout :: nav"></header>
@@ -43,11 +51,11 @@
                 <table class="table" style="table-layout: fixed">
                     <thead>
                     <tr>
-                        <th style="width:25%">제목</th>
-                        <th style="width:10%">가격</th>
+                        <th style="width:25%" th:classappend="${option == 'title' ? (desc ? 'desc' : 'asc') : ''}" onclick="sortTable('title')">제목</th>
+                        <th style="width:10%" th:classappend="${option == 'price' ? (desc ? 'desc' : 'asc') : ''}" onclick="sortTable('price')">가격</th>
                         <th style="width:20%">강사</th>
                         <th style="width:10%">카테고리</th>
-                        <th style="width:15%">등록일</th>
+                        <th style="width:15%" th:classappend="${option == 'date' ? (desc ? 'desc' : 'asc') : ''}" onclick="sortTable('regist')">등록일</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -177,6 +185,8 @@
 <form th:action="@{/}" method="get" id="searchForm">
     <input type="hidden" id="page" name="page" th:value="${page}">
     <input type="hidden" id="category" name="category" th:value="${category}">
+    <input type="hidden" id="option" name="option" th:value="${option}">
+    <input type="hidden" id="desc" name="desc" th:value="${desc}">
 </form>
 
 <!-- footer -->
@@ -185,7 +195,7 @@
 <script>
     $(document).ready(function() {
        getTeachers();
-       getLectures("[[${page}]]","[[${category}]]");
+       getLectures("[[${page}]]","[[${category}]]","[[${option}]]","[[${desc}]]");
    });
 
    // 카테고리 조회 기능
@@ -197,6 +207,20 @@
            document.getElementById('searchForm').submit();
        });
    });
+
+    function sortTable(option) {
+        const form = document.getElementById('searchForm');
+        const currentOption = document.getElementById('option').value;
+        const currentDesc = document.getElementById('desc').value === 'true';
+
+        document.getElementById('option').value = option;
+        if (currentOption === option) {
+            document.getElementById('desc').value = !currentDesc;
+        } else {
+            document.getElementById('desc').value = false;
+        }
+        form.submit();
+    }
 </script>
 <!--common script -->
 <th:block th:replace="layout :: scripts"></th:block>

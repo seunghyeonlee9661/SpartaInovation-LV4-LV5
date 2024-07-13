@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -124,8 +125,10 @@ public class LectureService {
     /*------------------------강의----------------------------------*/
 
     /* 강의 목록 불러오기 : 페이지, 카테고리 */
-    public ResponseDTO findLectures(int page, String category) {// DB 조회
-        Pageable pageable = PageRequest.of(page, 10);
+    public ResponseDTO findLectures(int page, String category, String option, boolean desc) {// DB 조회
+        Sort.Direction direction = desc ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sort = Sort.by(direction, option);
+        Pageable pageable = PageRequest.of(page, 10,sort);
         Page<LectureResponseDTO> lectures;
         if(category.isEmpty()){
             lectures =  lectureRepository.findAll(pageable).map(LectureResponseDTO::new);
