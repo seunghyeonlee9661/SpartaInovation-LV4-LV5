@@ -1,6 +1,6 @@
 package com.example.Sparta.entity;
 
-import com.example.Sparta.dto.UserRequestDTO;
+import com.example.Sparta.dto.request.UserCreateRequestDTO;
 import com.example.Sparta.enums.UserAuthority;
 import jakarta.persistence.*;
 import lombok.*;
@@ -51,7 +51,7 @@ public class User {
     private List<Reply> replies = new ArrayList<>();
 
 
-    public User(UserRequestDTO requestDTO, String password) {
+    public User(UserCreateRequestDTO requestDTO, String password) {
         this.email = requestDTO.getEmail();
         this.password = password;
         this.gender = requestDTO.getGender();

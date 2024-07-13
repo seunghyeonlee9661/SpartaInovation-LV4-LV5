@@ -1,4 +1,4 @@
-package com.example.Sparta.dto;
+package com.example.Sparta.dto.request;
 import com.example.Sparta.enums.UserAuthority;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 
 @Getter
-public class UserRequestDTO {
+public class UserCreateRequestDTO {
 
     @NotBlank(message = "이메일은 필수 항목입니다.")
     @Email(message = "유효한 이메일 주소여야 합니다.")

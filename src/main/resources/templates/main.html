@@ -40,6 +40,9 @@
                         <input class="form-check-input category" type="radio" name="radioNode" id="radioNode" th:data-category="${category == 'Node' ? '' : 'Node'}" th:checked="${category == 'Node'}">
                         <label class="form-check-label" for="radioNode">Node</label>
                     </div>
+                    <div class="p-1">
+                        <a class="p-1 me-2" th:href="@{/}"><i class="bi bi-arrow-counterclockwise"></i></a>
+                    </div>
                     <div class="p-1 ms-auto">
                         <a class="btn btn-secondary p-1 me-2" data-bs-toggle="modal" data-bs-target="#addTeacherModal"><i class="bi bi-plus"></i><i class="bi bi-file-earmark-person"></i></a>
                     </div>
@@ -55,7 +58,7 @@
                         <th style="width:10%" th:classappend="${option == 'price' ? (desc ? 'desc' : 'asc') : ''}" onclick="sortTable('price')">가격</th>
                         <th style="width:20%">강사</th>
                         <th style="width:10%">카테고리</th>
-                        <th style="width:15%" th:classappend="${option == 'date' ? (desc ? 'desc' : 'asc') : ''}" onclick="sortTable('regist')">등록일</th>
+                        <th style="width:15%" th:classappend="${option == 'regist' ? (desc ? 'desc' : 'asc') : ''}" onclick="sortTable('regist')">등록일</th>
                     </tr>
                     </thead>
                     <tbody>

@@ -4,8 +4,8 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
-    public CustomAuthenticationSuccessHandler() {
+public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
+    public AuthenticationSuccessHandler() {
         super();
         setDefaultTargetUrl("/");
     }

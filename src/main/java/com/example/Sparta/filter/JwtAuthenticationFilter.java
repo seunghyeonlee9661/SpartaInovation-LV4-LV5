@@ -1,7 +1,6 @@
 package com.example.Sparta.filter;
 
-import com.example.Sparta.dto.LoginRequestDTO;
-import com.example.Sparta.dto.UserRequestDTO;
+import com.example.Sparta.dto.request.UserLoginRequestDTO;
 import com.example.Sparta.enums.UserAuthority;
 import com.example.Sparta.global.JwtUtil;
 import com.example.Sparta.security.UserDetailsImpl;
@@ -33,7 +32,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         log.info("로그인 시도");
         try {
-            LoginRequestDTO requestDto = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDTO.class);
+            UserLoginRequestDTO requestDto = new ObjectMapper().readValue(request.getInputStream(), UserLoginRequestDTO.class);
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
                             requestDto.getUsername(),

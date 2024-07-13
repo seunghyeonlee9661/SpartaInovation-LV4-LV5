@@ -1,6 +1,6 @@
 package com.example.Sparta.entity;
 
-import com.example.Sparta.dto.TeacherRequestDTO;
+import com.example.Sparta.dto.request.TeacherCreateRequestDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,7 +37,7 @@ public class Teacher {
     @OneToMany(mappedBy = "teacher")
     private List<Lecture> lectures = new ArrayList<>();
 
-    public Teacher(TeacherRequestDTO requestDto) {
+    public Teacher(TeacherCreateRequestDTO requestDto) {
         this.name = requestDto.getName();
         this.year = requestDto.getYear();
         this.company = requestDto.getCompany();
@@ -45,7 +45,7 @@ public class Teacher {
         this.introduction = requestDto.getIntroduction();
     }
 
-    public void update(TeacherRequestDTO requestDto) {
+    public void update(TeacherCreateRequestDTO requestDto) {
         this.name = requestDto.getName();
         this.year = requestDto.getYear();
         this.company = requestDto.getCompany();

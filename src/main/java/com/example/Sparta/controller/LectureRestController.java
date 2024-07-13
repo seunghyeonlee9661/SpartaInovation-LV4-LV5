@@ -1,15 +1,14 @@
 package com.example.Sparta.controller;
 
-import com.example.Sparta.dto.*;
+import com.example.Sparta.dto.request.*;
+import com.example.Sparta.dto.response.ResponseDTO;
 import com.example.Sparta.enums.UserAuthority;
 import com.example.Sparta.security.UserDetailsImpl;
 import com.example.Sparta.service.LectureService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -21,30 +20,25 @@ public class LectureRestController {
 
     private final LectureService lectureService;
 
+    /*____________________사용자__________________________*/
+
     /* 사용자 추가 */
     @PostMapping("/user/signup")
-    public ResponseDTO createUser(@Valid @RequestBody UserRequestDTO requestDTO) {
+    public ResponseDTO createUser(@Valid @RequestBody UserCreateRequestDTO requestDTO) {
         return lectureService.createUser(requestDTO);
     }
 
     /* 사용자 추가 */
     @PostMapping("/user/withdraw")
     public ResponseDTO removeUser(@RequestBody Map<String, String> request, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        String password = request.get("password");
-        if(password == null || password.isEmpty())
-            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "올바르지 않은 비밀번호 입니다.", null);
-        return lectureService.removeUser(userDetails,password);
+        return lectureService.removeUser(userDetails,request.get("password"));
     }
 
-
     /*____________________강의__________________________*/
-
-    /* 강의 목록 불러오기 */
+    
+    /* 강의 목록 불러오기 : page(페이지네이션),category(카테고리),option(정렬옵션),desc(정렬방향) */
     @GetMapping("/lectures")
-    public ResponseDTO findLectures(@RequestParam(value="page", defaultValue="0") int page,
-                                    @RequestParam(value="category", defaultValue="") String category,
-                                    @RequestParam(value="option", defaultValue="") String option,
-                                    @RequestParam(value="desc", defaultValue="") boolean desc) {
+    public ResponseDTO findLectures(@RequestParam(value="page", defaultValue="0") int page, @RequestParam(value="category", defaultValue="") String category, @RequestParam(value="option", defaultValue="") String option, @RequestParam(value="desc", defaultValue="") boolean desc) {
         return lectureService.findLectures(page, category,option,desc);
     }
 
@@ -55,25 +49,24 @@ public class LectureRestController {
     }
 
     /* 강의 추가 */
-    @Secured(UserAuthority.Authority.ADMIN) // 관리자용
+    @Secured(UserAuthority.Authority.ADMIN)
     @PostMapping("/lecture")
-    public ResponseDTO createLecture(@RequestBody @Valid LectureRequestDTO lectureRequestDTO) {
-
-        return lectureService.createLecture(lectureRequestDTO);
+    public ResponseDTO createLecture(@RequestBody @Valid LectureCreateRequestDTO lectureCreateRequestDTO) {
+        return lectureService.createLecture(lectureCreateRequestDTO);
     }
 
     /* 강의 삭제 */
-    @Secured(UserAuthority.Authority.ADMIN) // 관리자용
+    @Secured(UserAuthority.Authority.ADMIN)
     @DeleteMapping("/lecture")
     public ResponseDTO removeLecture(@RequestParam("id") int id) {
         return lectureService.removeLecture(id);
     }
 
     /* 강의 수정 */
-    @Secured(UserAuthority.Authority.ADMIN) // 관리자용
+    @Secured(UserAuthority.Authority.ADMIN)
     @PutMapping("/lecture")
-    public ResponseDTO updateLecture(@RequestBody @Valid LectureRequestDTO lectureRequestDTO, @RequestParam("id") int id) {
-        return lectureService.updateLecture(id, lectureRequestDTO);
+    public ResponseDTO updateLecture(@RequestBody @Valid LectureCreateRequestDTO lectureCreateRequestDTO, @RequestParam("id") int id) {
+        return lectureService.updateLecture(id, lectureCreateRequestDTO);
     }
 
     /*____________________강사__________________________*/
@@ -93,8 +86,8 @@ public class LectureRestController {
     /* 강사 추가 */
     @Secured(UserAuthority.Authority.ADMIN)
     @PostMapping("/teacher")
-    public ResponseDTO createTeacher(@Valid @RequestBody TeacherRequestDTO teacherRequestDTO) {
-        return lectureService.createLecture(teacherRequestDTO);
+    public ResponseDTO createTeacher(@Valid @RequestBody TeacherCreateRequestDTO teacherCreateRequestDTO) {
+        return lectureService.createLecture(teacherCreateRequestDTO);
     }
 
     /* 강사 삭제 */
@@ -107,8 +100,8 @@ public class LectureRestController {
     /* 강사 수정 */
     @Secured(UserAuthority.Authority.ADMIN) // 관리자용
     @PutMapping("/teacher")
-    public ResponseDTO updateTeacher(@RequestBody @Valid TeacherRequestDTO teacherRequestDTO, @RequestParam("id") int id) {
-        return lectureService.updateTeacher(id, teacherRequestDTO);
+    public ResponseDTO updateTeacher(@Valid @RequestBody TeacherCreateRequestDTO teacherCreateRequestDTO, @RequestParam("id") int id) {
+        return lectureService.updateTeacher(id, teacherCreateRequestDTO);
     }
 
     /*____________________댓글__________________________*/
@@ -121,40 +114,40 @@ public class LectureRestController {
 
     /* 댓글 추가*/
     @PostMapping("/comment")
-    public ResponseDTO createComment(@RequestBody @Valid CommentRequestDTO commentRequestDTO) {
-        return lectureService.createComment(commentRequestDTO);
+    public ResponseDTO createComment(@Valid @RequestBody CommentCreateRequestDTO commentCreateRequestDTO) {
+        return lectureService.createComment(commentCreateRequestDTO);
     }
 
     /* 댓글 삭제 */
     @DeleteMapping("/comment")
-    public ResponseDTO removeComment(@RequestParam("id") int id) {
-        return lectureService.removeComment(id);
+    public ResponseDTO removeComment(@RequestParam("id") int id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return lectureService.removeComment(id,userDetails);
     }
 
     /* 댓글 수정 */
     @PutMapping("/comment")
-    public ResponseDTO updateComment(@RequestBody @Valid CommentUpdateDTO commentUpdateDTO, @RequestParam("id") int id) {
-        return lectureService.updateComment(id, commentUpdateDTO);
+    public ResponseDTO updateComment(@Valid @RequestBody CommentUpdateRequestDTO commentUpdateRequestDTO, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return lectureService.updateComment(commentUpdateRequestDTO,userDetails);
     }
 
     /*____________________대댓글_________________________*/
 
     /* 대댓글 추가 */
     @PostMapping("/reply")
-    public ResponseDTO createReply(@RequestBody @Valid ReplyRequestDTO replyRequestDTO) {
-        return lectureService.createReply(replyRequestDTO);
+    public ResponseDTO createReply(@RequestBody @Valid ReplyCreateRequestDTO replyCreateRequestDTO) {
+        return lectureService.createReply(replyCreateRequestDTO);
     }
 
     /* 대댓글 삭제 */
     @DeleteMapping("/reply")
-    public ResponseDTO removeReply(@RequestParam("id") int id) {
-        return lectureService.removeReply(id);
+    public ResponseDTO removeReply(@RequestParam("id") int id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return lectureService.removeReply(id,userDetails);
     }
 
     /* 대댓글 수정 */
     @PutMapping("/reply")
-    public ResponseDTO updateReply(@RequestBody @Valid ReplyUpdateDTO replyUpdateDTO, @RequestParam("id") int id) {
-        return lectureService.updateReply(id, replyUpdateDTO);
+    public ResponseDTO updateReply(@RequestBody @Valid ReplyUpdateRequestDTO replyUpdateRequestDTO,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return lectureService.updateReply(replyUpdateRequestDTO,userDetails);
     }
 
     /*____________________좋아요_________________________*/
@@ -167,7 +160,7 @@ public class LectureRestController {
 
     /* 사용자 좋아요 변경 */
     @PostMapping("/like")
-    public ResponseDTO createLike(@RequestBody @Valid LikeRequestDTO likeRequestDTO) {
-        return lectureService.setLike(likeRequestDTO);
+    public ResponseDTO createLike(@RequestBody @Valid LikeCreateRequestDTO likeCreateRequestDTO) {
+        return lectureService.setLike(likeCreateRequestDTO);
     }
 }

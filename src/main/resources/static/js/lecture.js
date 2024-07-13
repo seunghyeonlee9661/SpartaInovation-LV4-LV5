@@ -358,7 +358,7 @@ function setComments(comments){
                     <div class="comment-text">
                         <p>${comment.regist}</p>
                     </div>
-                    <button class="btn btn-sm float-end ms-auto ${isCommentOwner ? '' : 'd-none'}" onclick="replyComment(${comment.id}, this)">
+                    <button class="btn btn-sm float-end ms-auto" onclick="replyComment(${comment.id}, this)">
                         <i class="bi bi-reply"></i>
                     </button>
 
@@ -411,7 +411,7 @@ function setComments(comments){
     });
 }
 // 댓글 추가
-function addComment(lecture_id) {
+function addComment() {
     var text = $('#addComment_text').val();
     if (text != "") {
         Request('/api/comment', 'POST', {
@@ -429,7 +429,7 @@ function addComment(lecture_id) {
                 }
             })
             .catch(function(error) {
-                alert(error);
+                alert(error.responseText);
             });
     }
 }
@@ -466,7 +466,8 @@ function editComment(commentId, button) {
 }
 // 댓글 수정
 function saveComment(id, button) {
-    Request('/api/comment?id=' + id, 'PUT', {
+    Request('/api/comment', 'PUT', {
+        'id' : id,
         'text': $(`#comment-text-${id} textarea`).val()
     })
     .then(function(response) {
@@ -501,7 +502,7 @@ function cancelReply(commentId, button) {
     let replyInputElement = $(`#reply-input-${commentId}`);
     replyInputElement.addClass('d-none');
 }
-// 대댓글 저장
+// 대댓글 추가
 function addReply(comment_id, button) {
     let text = $(`#reply-input-${comment_id} textarea`).val();
     if (text != "") {
@@ -519,7 +520,7 @@ function addReply(comment_id, button) {
                 }
             })
             .catch(function(error) {
-                alert(error);
+                alert(error.responseText);
             });
     }
 }
@@ -564,7 +565,8 @@ function cancelEditReply(replyId, originalText, button) {
 }
 // 대댓글 수정 저장
 function saveReplyEdit(id, button) {
-    Request('/api/reply?id=' + id, 'PUT', {
+    Request('/api/reply', 'PUT', {
+        'id' : id,
         'text': $(`#reply-text-${id} textarea`).val()
     })
     .then(function(response) {

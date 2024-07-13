@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-
+/* 로그인한 사용자가 로그인 페이지에 접근한 경우 대처하는 필터 */
 @Component
 public class LoginRedirectFilter extends OncePerRequestFilter {
 

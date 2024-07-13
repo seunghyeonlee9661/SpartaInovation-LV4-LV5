@@ -1,9 +1,6 @@
-package com.example.Sparta.dto;
+package com.example.Sparta.dto.response;
 import com.example.Sparta.entity.Teacher;
 import lombok.Getter;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 public class SimpleTeacherResponseDTO {

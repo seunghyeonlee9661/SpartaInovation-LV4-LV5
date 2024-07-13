@@ -16,7 +16,7 @@ public class LectureViewController {
         return "login";
     }
 
-    /* 메인 */
+    /* 강의 및 강사 페이지 */
     @GetMapping("/")
     public String mainPage(@RequestParam(value="page", defaultValue="0") int page,
                            @RequestParam(value="category", defaultValue="") String category,

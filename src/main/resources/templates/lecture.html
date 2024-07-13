@@ -36,9 +36,9 @@
             </div>
             <p id="lectureIntroduction" class="p-2 blog-post-meta"></p>
 
-            <div class="my-3" th:if="${user != null}">
+            <div class="my-3">
                 <textarea id="addComment_text" class="form-control" rows="3" placeholder="댓글을 입력하세요..."></textarea>
-                <button class="btn btn-primary mt-2" th:onclick="addComment([[${id}]], [[${user.id}]]);">댓글 추가</button>
+                <button class="btn btn-primary mt-2" th:onclick="addComment();">댓글 추가</button>
             </div>
 
             <!-- 댓글 섹션 -->

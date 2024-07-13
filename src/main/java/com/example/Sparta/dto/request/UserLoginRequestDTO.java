@@ -1,18 +1,18 @@
-package com.example.Sparta.dto;
+package com.example.Sparta.dto.request;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 
 @Getter
-public class LoginRequestDTO {
+public class UserLoginRequestDTO {
 
-    @NotNull
-    @Email
+    @NotBlank(message = "아이디를 입력해주세요")
+    @Email(message = "유효한 이메일 주소여야 합니다.")
     private String username;
 
-    @NotNull
+    @NotNull(message = "비밀번호를 입력해주세요")
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,15}$", message = "The password must be 8-15 characters long and include at least one letter, one number, and one special character.")
     private String password;
 }

@@ -1,7 +1,6 @@
 package com.example.Sparta.entity;
 
-import com.example.Sparta.dto.CommentUpdateDTO;
-import com.example.Sparta.dto.LectureRequestDTO;
+import com.example.Sparta.dto.request.CommentUpdateRequestDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,7 +44,7 @@ public class Comment {
         this.text = text;
     }
 
-    public void update(CommentUpdateDTO commentUpdateDTO) {
-        this.text = commentUpdateDTO.getText();
+    public void update(CommentUpdateRequestDTO commentUpdateRequestDTO) {
+        this.text = commentUpdateRequestDTO.getText();
     }
 }

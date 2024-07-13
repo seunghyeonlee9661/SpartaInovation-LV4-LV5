@@ -7,5 +7,5 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface LectureRepository extends JpaRepository<Lecture, Integer> {
-    Page<Lecture> findByCategoryOrderByRegistDesc(LectureCategory category, Pageable pageable);
+    Page<Lecture> findByCategory(LectureCategory category, Pageable pageable);
 }

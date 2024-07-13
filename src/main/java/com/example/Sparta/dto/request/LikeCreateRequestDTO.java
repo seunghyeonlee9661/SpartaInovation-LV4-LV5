@@ -1,10 +1,10 @@
-package com.example.Sparta.dto;
+package com.example.Sparta.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-public class LikeRequestDTO {
+public class LikeCreateRequestDTO {
 
     @NotNull
     private int lecture_id;

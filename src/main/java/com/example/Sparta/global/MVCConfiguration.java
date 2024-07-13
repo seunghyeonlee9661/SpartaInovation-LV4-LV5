@@ -1,5 +1,6 @@
 package com.example.Sparta.global;
 
+import com.example.Sparta.handler.UserInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;

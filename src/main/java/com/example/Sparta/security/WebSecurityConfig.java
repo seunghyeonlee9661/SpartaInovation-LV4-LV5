@@ -4,9 +4,9 @@ import com.example.Sparta.filter.JwtAuthenticationFilter;
 import com.example.Sparta.filter.JwtAuthorizationFilter;
 import com.example.Sparta.filter.LoginRedirectFilter;
 import com.example.Sparta.handler.AccessDeniedHandler;
-import com.example.Sparta.global.AuthenticationEntryPoint;
+import com.example.Sparta.handler.AuthenticationEntryPoint;
 import com.example.Sparta.global.JwtUtil;
-import com.example.Sparta.handler.CustomAuthenticationSuccessHandler;
+import com.example.Sparta.handler.AuthenticationSuccessHandler;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,17 +33,17 @@ public class WebSecurityConfig {
     private final LoginRedirectFilter loginRedirectFilter;
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final AccessDeniedHandler accessDeniedHandler;
-    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final AuthenticationSuccessHandler authenticationSuccessHandler;
 
 
-    public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration, LoginRedirectFilter loginRedirectFilter, AuthenticationEntryPoint authenticationEntryPoint, AccessDeniedHandler accessDeniedHandler, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) {
+    public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration, LoginRedirectFilter loginRedirectFilter, AuthenticationEntryPoint authenticationEntryPoint, AccessDeniedHandler accessDeniedHandler, AuthenticationSuccessHandler authenticationSuccessHandler) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
         this.authenticationConfiguration = authenticationConfiguration;
         this.loginRedirectFilter = loginRedirectFilter;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.accessDeniedHandler = accessDeniedHandler;
-        this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
+        this.authenticationSuccessHandler = authenticationSuccessHandler;
     }
 
     @Bean
@@ -103,7 +103,7 @@ public class WebSecurityConfig {
         http.formLogin((formLogin) -> formLogin.
                 loginPage("/login")
                 .loginProcessingUrl("/api/user/login")
-                .successHandler(customAuthenticationSuccessHandler)
+                .successHandler(authenticationSuccessHandler)
                 .failureUrl("/login?error")
                 .permitAll()
         );

@@ -1,7 +1,6 @@
 package com.example.Sparta.entity;
 
-import com.example.Sparta.dto.LectureRequestDTO;
-import com.example.Sparta.entity.Teacher;
+import com.example.Sparta.dto.request.LectureCreateRequestDTO;
 import com.example.Sparta.enums.LectureCategory;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -52,7 +51,7 @@ public class Lecture {
     @Column(name="regist")
     private LocalDateTime regist;
 
-    public Lecture(LectureRequestDTO requestDto, Teacher teacher) {
+    public Lecture(LectureCreateRequestDTO requestDto, Teacher teacher) {
         this.title = requestDto.getTitle();
         this.price = requestDto.getPrice();
         this.introduction = requestDto.getIntroduction();
@@ -60,7 +59,7 @@ public class Lecture {
         this.teacher = teacher;
     }
 
-    public void update(LectureRequestDTO requestDto, Teacher teacher) {
+    public void update(LectureCreateRequestDTO requestDto, Teacher teacher) {
         this.title = requestDto.getTitle();
         this.price = requestDto.getPrice();
         this.introduction = requestDto.getIntroduction();

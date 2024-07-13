@@ -1,6 +1,5 @@
-package com.example.Sparta.dto;
+package com.example.Sparta.dto.request;
 
-import com.example.Sparta.enums.LectureCategory;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -8,7 +7,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 
 @Getter
-public class TeacherRequestDTO {
+public class TeacherCreateRequestDTO {
 
     @NotBlank(message = "이름은 필수 항목입니다.")
     private String name;

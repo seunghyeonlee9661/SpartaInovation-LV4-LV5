@@ -1,4 +1,4 @@
-package com.example.Sparta.global;
+package com.example.Sparta.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

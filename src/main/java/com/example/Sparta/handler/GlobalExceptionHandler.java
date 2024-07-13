@@ -1,6 +1,6 @@
 package com.example.Sparta.handler;
 
-import com.example.Sparta.dto.ResponseDTO;
+import com.example.Sparta.dto.response.ResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;

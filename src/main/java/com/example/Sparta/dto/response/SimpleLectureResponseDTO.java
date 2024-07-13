@@ -1,8 +1,7 @@
-package com.example.Sparta.dto;
+package com.example.Sparta.dto.response;
 import com.example.Sparta.entity.Lecture;
 import com.example.Sparta.enums.LectureCategory;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 

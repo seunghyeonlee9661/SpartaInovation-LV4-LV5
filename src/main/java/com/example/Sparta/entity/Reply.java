@@ -1,7 +1,6 @@
 package com.example.Sparta.entity;
 
-import com.example.Sparta.dto.ReplyUpdateDTO;
-import com.example.Sparta.dto.TeacherRequestDTO;
+import com.example.Sparta.dto.request.ReplyUpdateRequestDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,7 +39,7 @@ public class Reply {
         this.text = text;
     }
 
-    public void update(ReplyUpdateDTO replyUpdateDTO) {
-        this.text = replyUpdateDTO.getText();
+    public void update(ReplyUpdateRequestDTO replyUpdateRequestDTO) {
+        this.text = replyUpdateRequestDTO.getText();
     }
 }
