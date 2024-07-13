@@ -29,13 +29,37 @@
                 <i class="bi bi-flag-fill"></i>
             </a>
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <li><a th:href="@{/lectures}" class="nav-link px-2 text-secondary">강의</a></li>
+                <li><a th:href="@{/}" class="nav-link px-2 text-secondary">강의</a></li>
                 <li><a th:href="@{/goods}" class="nav-link px-2 'text-secondary">굿즈</a></li>
             </ul>
             <div th:if="${user != null}" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
                 <div class="row">
                     <div class="col">
                         <span class="badge" th:classappend="${user.authority.name()} == 'ADMIN' ? 'text-bg-success' : 'text-bg-warning'" th:text="${user.authority}"></span>
+                    </div>
+                    <div class="col">
+                        <a class="nav-link px-2" data-bs-toggle="modal" data-bs-target="#withdrawModal"><i class="bi bi-person-dash-fill"></i></a>
+                    </div>
+                    <!-- 탈퇴 모달 -->
+                    <div class="modal fade" id="withdrawModal" tabindex="-1" aria-labelledby="withdrawModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                            <div class="modal-content" style="color:black">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="withdrawModalLabel">회원탈퇴</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="withdrawForm" class="needs-validation" method="POST" novalidate>
+                                        <!-- 비밀번호 -->
+                                        <div class="mb-3">
+                                            <label for="withdrawPassword" class="form-label">비밀번호</label>
+                                            <input type="password" id="withdrawPassword" name="withdrawPassword" class="form-control" required>
+                                        </div>
+                                    </form>
+                                    <button class="btn btn-danger" style="width:100%" onclick="withdraw()">Add</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col">
                         <a class="nav-link px-2" onclick="logout()"><i class="bi bi-box-arrow-left"></i></a>
@@ -55,6 +79,8 @@
         </div>
     </div>
 </header>
+
+
 
 <!-- Footer -->
 <footer th:fragment="footer"></footer>

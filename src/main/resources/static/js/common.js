@@ -108,6 +108,7 @@ function signup() {
         })
         .then(function(response) {
             if (response.status === 200) {
+                alert(response.message);
                 location.href = "/login";
             } else {
                 alert(response.message);
@@ -170,4 +171,25 @@ function logout() {
       Cookies.remove('Authorization', { path: '/' });
       location.href = location.href;
   }
+}
+// 회원탈퇴
+function withdraw() {
+    Request('/api/user/withdraw', 'POST', {
+            'password': $('#withdrawPassword').val(),
+        })
+        .then(function(response) {
+            if (response.status === 200) {
+                alert(response.message);
+                Cookies.remove('Authorization', { path: '/' });
+                location.href = location.href;
+            } else {
+                alert(response.message);
+            }
+        })
+        .catch(function(xhr, status, error) {
+            console.log(xhr)
+            console.log(status)
+            console.log(error)
+            alert('서버 오류가 발생했습니다.');
+        });
 }

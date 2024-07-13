@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum UserAuthority {
-    ADMIN(Authority.USER),
-    USER(Authority.ADMIN);
+    ADMIN(Authority.ADMIN),
+    USER(Authority.USER);
 
     private final String authority;
 
@@ -14,8 +14,7 @@ public enum UserAuthority {
     }
 
     public static class Authority {
-        public static final String USER = "USER";
-        public static final String ADMIN = "ADMIN";
+        public static final String USER = "ROLE_USER"; // 권한 이름 앞에 ROLE_ 접두사 추가
+        public static final String ADMIN = "ROLE_ADMIN"; // 권한 이름 앞에 ROLE_ 접두사 추가
     }
-
 }

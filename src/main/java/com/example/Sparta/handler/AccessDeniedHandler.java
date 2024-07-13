@@ -1,4 +1,4 @@
-package com.example.Sparta.global;
+package com.example.Sparta.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+/* 올바른 권한이 아닌 경우에 대한 오류 처리! */
 @Component
 public class AccessDeniedHandler implements org.springframework.security.web.access.AccessDeniedHandler {
     @Override

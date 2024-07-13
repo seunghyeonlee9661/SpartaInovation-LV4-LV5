@@ -4,6 +4,7 @@ import com.example.Sparta.entity.*;
 import com.example.Sparta.enums.LectureCategory;
 import com.example.Sparta.global.JwtUtil;
 import com.example.Sparta.repository.*;
+import com.example.Sparta.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,7 +44,7 @@ public class LectureService {
 
     /* 회원가입 */
     @Transactional
-    public ResponseDTO  signup(UserRequestDTO userRequestDTO){
+    public ResponseDTO createUser(UserRequestDTO userRequestDTO){
         try {
             if (userRepository.findByEmail(userRequestDTO.getEmail()).isPresent()) throw new IllegalArgumentException("중복된 Email 입니다.");
             User user = new User(userRequestDTO,passwordEncoder.encode(userRequestDTO.getPassword()));
@@ -54,6 +55,18 @@ public class LectureService {
         }
     }
 
+    @Transactional
+    public ResponseDTO removeUser(UserDetailsImpl userDetails, String password){
+        try {
+            User user = userDetails.getUser();
+            if(!passwordEncoder.matches(password,user.getPassword()))
+                return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "비밀번호가 일치하지 않습니다.", null);
+            userRepository.delete(user);
+            return new ResponseDTO(HttpStatus.OK.value(), "회원탈퇴 완료", null);
+        }catch (Exception e) {
+            return new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
+        }
+    }
     /*------------------------강사----------------------------------*/
 
     /* 강사 목록 불러오기 */

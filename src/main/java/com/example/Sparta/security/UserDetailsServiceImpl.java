@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-/* Spring Security : 인증 롹인 작업 */
+/* Spring Security : 인증 확인 작업 */
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -20,8 +20,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     /* 인증 확인 작업 */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Not Found " + username));
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Not Found " + username));
         return new UserDetailsImpl(user);
     }
 }

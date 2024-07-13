@@ -3,15 +3,17 @@ package com.example.Sparta.security;
 import com.example.Sparta.filter.JwtAuthenticationFilter;
 import com.example.Sparta.filter.JwtAuthorizationFilter;
 import com.example.Sparta.filter.LoginRedirectFilter;
-import com.example.Sparta.global.AccessDeniedHandler;
+import com.example.Sparta.handler.AccessDeniedHandler;
 import com.example.Sparta.global.AuthenticationEntryPoint;
 import com.example.Sparta.global.JwtUtil;
+import com.example.Sparta.handler.CustomAuthenticationSuccessHandler;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,6 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity // Spring Security 지원을 가능하게 함
+@EnableGlobalMethodSecurity(securedEnabled = true)  // @Secured 애노테이션 활성화
 public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
@@ -30,14 +33,17 @@ public class WebSecurityConfig {
     private final LoginRedirectFilter loginRedirectFilter;
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final AccessDeniedHandler accessDeniedHandler;
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
-    public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration, LoginRedirectFilter loginRedirectFilter, AuthenticationEntryPoint authenticationEntryPoint, AccessDeniedHandler accessDeniedHandler) {
+
+    public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration, LoginRedirectFilter loginRedirectFilter, AuthenticationEntryPoint authenticationEntryPoint, AccessDeniedHandler accessDeniedHandler, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
         this.authenticationConfiguration = authenticationConfiguration;
         this.loginRedirectFilter = loginRedirectFilter;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.accessDeniedHandler = accessDeniedHandler;
+        this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
     }
 
     @Bean
@@ -68,15 +74,22 @@ public class WebSecurityConfig {
                 authorizeHttpRequests
                         // resources 접근 허용 설정
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        // '/api/user/'로 시작하는 요청 모두 접근 허가
-                        .requestMatchers("/api/user/**").permitAll()
-                        .requestMatchers("/teacher","/lecture","/teacher/*","/lecture/*","/","/error").permitAll()
-                        // 강사 목록 불러오는 요청 : 허용
-                        .requestMatchers(HttpMethod.GET, "/api/teacher").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/lecture").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/like").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/teachers").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/lectures").permitAll()
+                        // 로그인 없이 접근 가능한 경로
+                        .requestMatchers(
+                                "/api/user/login", // 로그인
+                                "/api/user/signup", // 회원가입
+                                "/teacher/*", // 강사 페이지
+                                "/lecture/*", // 강의 페이지
+                                "/", // 강의 및 강사 목록 페이지
+                                "/error" // 오류 페이지
+                        ).permitAll()
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/teacher", // 강사 정보 불러오기
+                                "/api/lecture", // 강의 정보 불러오기
+                                "/api/teachers", // 강사 정보 불러오기
+                                "/api/lectures" // 강의 정보 불러오기
+                        ).permitAll() 
                         // 그 외 모든 요청 인증처리
                         .anyRequest().authenticated()
         );
@@ -90,7 +103,7 @@ public class WebSecurityConfig {
         http.formLogin((formLogin) -> formLogin.
                 loginPage("/login")
                 .loginProcessingUrl("/api/user/login")
-                .defaultSuccessUrl("/")
+                .successHandler(customAuthenticationSuccessHandler)
                 .failureUrl("/login?error")
                 .permitAll()
         );
