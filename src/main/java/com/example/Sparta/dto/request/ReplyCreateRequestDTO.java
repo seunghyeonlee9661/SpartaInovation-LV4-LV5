@@ -3,6 +3,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
+/* 대댓글 생성 요청 */
 @Getter
 public class ReplyCreateRequestDTO {
     @NotNull

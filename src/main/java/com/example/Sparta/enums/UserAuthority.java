@@ -1,7 +1,7 @@
 package com.example.Sparta.enums;
-
 import lombok.Getter;
 
+/* 사용자 권한 */
 @Getter
 public enum UserAuthority {
     USER(Authority.USER),  // 사용자 권한
@@ -11,10 +11,6 @@ public enum UserAuthority {
 
     UserAuthority(String authority) {
         this.authority = authority;
-    }
-
-    public String getAuthority() {
-        return this.authority;
     }
 
     public static class Authority {

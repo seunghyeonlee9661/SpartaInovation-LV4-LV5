@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+/* 사용자 정보를 layout을 통해 항상 보여주기 위해 사용하는 인터셉터 */
 @Component
 public class UserInterceptor implements HandlerInterceptor {
 

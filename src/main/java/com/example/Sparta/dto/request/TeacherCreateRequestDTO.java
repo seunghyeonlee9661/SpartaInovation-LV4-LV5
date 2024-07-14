@@ -6,6 +6,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 
+/* 강사 생성 요청 */
 @Getter
 public class TeacherCreateRequestDTO {
 

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/* 댓글 내용 반환 */
 @Getter
 public class CommentResponseDTO {
     private int id;

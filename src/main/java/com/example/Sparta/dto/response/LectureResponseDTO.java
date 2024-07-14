@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/* 강사 내용 반환 */
 @Getter
 public class LectureResponseDTO {
     private int id;

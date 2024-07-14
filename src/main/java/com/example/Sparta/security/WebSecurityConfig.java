@@ -36,6 +36,7 @@ public class WebSecurityConfig {
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
 
 
+    /* 생성자 */
     public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration, LoginRedirectFilter loginRedirectFilter, AuthenticationEntryPoint authenticationEntryPoint, AccessDeniedHandler accessDeniedHandler, AuthenticationSuccessHandler authenticationSuccessHandler) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
@@ -51,6 +52,7 @@ public class WebSecurityConfig {
         return configuration.getAuthenticationManager();
     }
 
+    /* 로그인과 JWT 생성을 위한 필터 */
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
@@ -58,11 +60,13 @@ public class WebSecurityConfig {
         return filter;
     }
 
+    /* JWT 검증 필터 */
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
         return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
     }
 
+    /* 보안 필터의 범위와 */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // CSRF 설정

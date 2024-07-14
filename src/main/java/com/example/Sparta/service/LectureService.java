@@ -60,20 +60,20 @@ public class LectureService {
         }
     }
 
+    /* 회원 탈퇴*/
     @Transactional
     public ResponseDTO removeUser(UserDetailsImpl userDetails, String password){
         try {
-            if(password == null || password.isEmpty())
-                return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "올바르지 않은 비밀번호 입니다.", null);
+            if(password == null || password.isEmpty()) return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "올바르지 않은 비밀번호 입니다.", null);
             User user = userDetails.getUser();
-            if(!passwordEncoder.matches(password,user.getPassword()))
-                return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "비밀번호가 일치하지 않습니다.", null);
+            if(!passwordEncoder.matches(password,user.getPassword())) return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "비밀번호가 일치하지 않습니다.", null);
             userRepository.delete(user);
             return new ResponseDTO(HttpStatus.OK.value(), "회원탈퇴 완료", null);
         }catch (Exception e) {
             return new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
         }
     }
+
     /*------------------------강사----------------------------------*/
 
     /* 강사 목록 불러오기 */
@@ -126,7 +126,6 @@ public class LectureService {
             return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
         }
     }
-
 
     /*------------------------강의----------------------------------*/
 

@@ -3,6 +3,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
+/* 댓글 생성 요청 */
 @Getter
 public class CommentCreateRequestDTO {
 

@@ -8,10 +8,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-/* @Valid 에러 처리하는 핸들러 */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /* @Valid 에러 처리하는 핸들러 */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseDTO handleValidationExceptions(MethodArgumentNotValidException ex) {
         BindingResult bindingResult = ex.getBindingResult();

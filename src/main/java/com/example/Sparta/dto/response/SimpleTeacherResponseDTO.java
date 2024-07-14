@@ -2,6 +2,7 @@ package com.example.Sparta.dto.response;
 import com.example.Sparta.entity.Teacher;
 import lombok.Getter;
 
+/* 연관관계를 위한 강사 내용 반환 */
 @Getter
 public class SimpleTeacherResponseDTO {
     private int id;

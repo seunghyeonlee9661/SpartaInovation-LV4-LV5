@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+/* 대댓글 내용 반환 */
 @Getter
 public class ReplyRsponseDTO {
     private int id;

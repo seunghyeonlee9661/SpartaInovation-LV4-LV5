@@ -5,6 +5,7 @@ import lombok.Getter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/* 강사 내용 반환 */
 @Getter
 public class TeacherResponseDTO {
     private int id;

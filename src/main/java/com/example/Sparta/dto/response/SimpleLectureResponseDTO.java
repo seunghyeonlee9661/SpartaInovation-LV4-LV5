@@ -5,6 +5,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+/* 연관관계를 위한 강의 내용 반환 */
 @Getter
 public class SimpleLectureResponseDTO {
     private int id;
