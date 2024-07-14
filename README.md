@@ -22,8 +22,7 @@ Spring 기초 학습 및 팀 프로젝트 진행. 기초적인 게시판 제작�
   - 댓글 및 대댓글 기능 구현
     - 각각의 강의에 대한 댓글 작성 및 조회 기능
     - 댓글에 대한 대댓글 작성 및 조회 기능
-- [프로젝트 Notion 링크](https://teamsparta.notion.site/Spring-Lv-4-2783abbdf7ab4054bcfb7ab4d5bc5805)
-
+- [프로젝트 Notion 링크](https://leather-pixie-4bc.notion.site/Spring-LV4-261319436608434cbf7df93ae3019a94?pvs=74)
 
 ### LV5 (2024년 7월 15일 ~ 추후 추가 예정)
 - 📝 스파르타 굿즈 판매 사이트 서버 만들기
