@@ -82,17 +82,24 @@ public class WebSecurityConfig {
                         .requestMatchers(
                                 "/api/user/login", // 로그인
                                 "/api/user/signup", // 회원가입
-                                "/teacher/*", // 강사 페이지
-                                "/lecture/*", // 강의 페이지
-                                "/", // 강의 및 강사 목록 페이지
+                                //lv4
+                                "/lectures", // 강의 및 강사 목록 페이지
+                                "/teacher/*", // 강사 상세
+                                "/lecture/*", // 강의 상세
+                                //lv5
+                                "/goods", // 굿즈 페이지
+                                "/product/*", // 제품 상세
+                                "/", // 메인 페이지
                                 "/error" // 오류 페이지
                         ).permitAll()
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/teacher", // 강사 정보 불러오기
+                                "/api/teachers", // 강사 목록 불러오기
                                 "/api/lecture", // 강의 정보 불러오기
-                                "/api/teachers", // 강사 정보 불러오기
-                                "/api/lectures" // 강의 정보 불러오기
+                                "/api/lectures", // 강의 목록 불러오기
+                                "/api/products", // 제품 목록 불러오기
+                                "/api/product" // 제품 정보 불러오기
                         ).permitAll() 
                         // 그 외 모든 요청 인증처리
                         .anyRequest().authenticated()

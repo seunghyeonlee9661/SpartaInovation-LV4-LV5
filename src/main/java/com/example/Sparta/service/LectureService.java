@@ -198,8 +198,8 @@ public class LectureService {
 
     /* 댓글 목록 불러오기 */
     public ResponseDTO findComments(int id) {// DB 조회
-        List<Comment> comments = commentRepository.findByLectureId(id);
-        return new ResponseDTO(HttpStatus.OK.value(), "강사 목록 조회",comments.stream().map(CommentResponseDTO::new).toList());
+        List<CommentResponseDTO> comments = commentRepository.findByLectureId(id).stream().map(CommentResponseDTO::new).toList();
+        return new ResponseDTO(HttpStatus.OK.value(), "강사 목록 조회",comments);
     }
 
     /* 댓글 추가 */
@@ -208,7 +208,7 @@ public class LectureService {
         try {
             Lecture lecture = lectureRepository.findById(commentCreateRequestDTO.getLecture_id()).orElseThrow(() -> new IllegalArgumentException("강의가 존재하지 않습니다."));
             User user = userRepository.findById(commentCreateRequestDTO.getUser_id()).orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
-            Comment comment = new Comment(lecture,user, commentCreateRequestDTO.getText());
+            Comment comment = new Comment(lecture,user, commentCreateRequestDTO);
             commentRepository.save(comment);
             return new ResponseDTO(HttpStatus.OK.value(), "댓글 추가 완료",null);
         } catch (Exception e) {
@@ -254,7 +254,7 @@ public class LectureService {
         try {
             Comment comment = commentRepository.findById(replyCreateRequestDTO.getComment_id()).orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다."));
             User user = userRepository.findById(replyCreateRequestDTO.getUser_id()).orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
-            Reply reply = new Reply(comment,user, replyCreateRequestDTO.getText());
+            Reply reply = new Reply(comment,user, replyCreateRequestDTO);
             replyRepository.save(reply);
             return new ResponseDTO(HttpStatus.OK.value(), "대댓글 추가 완료",null);
         } catch (Exception e) {

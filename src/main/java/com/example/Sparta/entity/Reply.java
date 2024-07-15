@@ -1,5 +1,7 @@
 package com.example.Sparta.entity;
 
+import com.example.Sparta.dto.request.CommentCreateRequestDTO;
+import com.example.Sparta.dto.request.ReplyCreateRequestDTO;
 import com.example.Sparta.dto.request.ReplyUpdateRequestDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -33,10 +35,10 @@ public class Reply {
     @Column(name="regist")
     private LocalDateTime regist;
 
-    public Reply(Comment comment, User user, String text) {
+    public Reply(Comment comment, User user, ReplyCreateRequestDTO replyCreateRequestDTO) {
         this.user = user;
         this.comment = comment;
-        this.text = text;
+        this.text = replyCreateRequestDTO.getText();
     }
 
     public void update(ReplyUpdateRequestDTO replyUpdateRequestDTO) {

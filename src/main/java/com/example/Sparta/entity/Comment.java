@@ -1,5 +1,6 @@
 package com.example.Sparta.entity;
 
+import com.example.Sparta.dto.request.CommentCreateRequestDTO;
 import com.example.Sparta.dto.request.CommentUpdateRequestDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -38,10 +39,10 @@ public class Comment {
     @OneToMany(mappedBy = "comment", orphanRemoval = true, cascade = CascadeType.REMOVE)
     private List<Reply> replies = new ArrayList<>();
 
-    public Comment(Lecture lecture, User user, String text) {
+    public Comment(Lecture lecture, User user, CommentCreateRequestDTO commentCreateRequestDTO) {
         this.user = user;
         this.lecture = lecture;
-        this.text = text;
+        this.text = commentCreateRequestDTO.getText();
     }
 
     public void update(CommentUpdateRequestDTO commentUpdateRequestDTO) {
