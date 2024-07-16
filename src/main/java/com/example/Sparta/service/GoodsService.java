@@ -89,6 +89,14 @@ public class GoodsService {
         try {
             Product product = productRepository.findById(cartCreateRequestDTO.getProduct_id()).orElseThrow(() -> new IllegalArgumentException("제품을 찾을 수 없습니다."));
             User user = userRepository.findById(cartCreateRequestDTO.getUser_id()).orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+            // 제품 재고량 초과
+            if(cartCreateRequestDTO.getCount() > product.getCount()){
+                return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "제품 재고량을 초과했습니다.", null);
+            }
+            // 이미 장바구니에 제품이 있는 경우
+            if(cartRepository.findByUserIdAndProductId(cartCreateRequestDTO.getUser_id(),cartCreateRequestDTO.getProduct_id()).isPresent()){
+                return new ResponseDTO(HttpStatus.MULTIPLE_CHOICES.value(), "이미 제품이 장바구니에 있습니다.", null);
+            }
             Cart cart = new Cart(user,product,cartCreateRequestDTO);
             cartRepository.save(cart);
             return new ResponseDTO(HttpStatus.OK.value(), "장바구니 추가 완료", null);
