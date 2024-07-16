@@ -3,6 +3,7 @@ package com.example.Sparta.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 public class ProductRequestDTO{
@@ -19,7 +20,4 @@ public class ProductRequestDTO{
     private String introduction;
 
     private String category;
-
-    private String img;
-
 }

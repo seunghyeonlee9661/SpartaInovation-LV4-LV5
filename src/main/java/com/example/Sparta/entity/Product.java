@@ -37,9 +37,6 @@ public class Product {
     @Column(name="category", columnDefinition = "varchar(100)")
     private String category;
 
-    @Column(name="img",columnDefinition = "TEXT")
-    private String img;
-
 
     public Product(ProductRequestDTO productRequestDTO) {
         this.name = productRequestDTO.getName();
@@ -47,7 +44,6 @@ public class Product {
         this.count = productRequestDTO.getCount();
         this.introduction = productRequestDTO.getIntroduction();
         this.category = productRequestDTO.getCategory();
-        this.img = productRequestDTO.getImg();
     }
 
 }

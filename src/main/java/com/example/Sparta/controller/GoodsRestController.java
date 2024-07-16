@@ -8,15 +8,19 @@ import com.example.Sparta.service.GoodsService;
 import com.example.Sparta.service.LectureService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api")
 public class GoodsRestController {
 
+    private static final Logger logger = LoggerFactory.getLogger(GoodsRestController.class);
     private final GoodsService goodsService;
 
     /*_____________________제품_______________________*/
@@ -39,6 +43,15 @@ public class GoodsRestController {
     public ResponseDTO createProduct(@RequestBody @Valid ProductRequestDTO productRequestDTO) {
         return goodsService.createProduct(productRequestDTO);
     }
+
+    /* 제품 이미지 추가 */
+    @Secured(UserAuthority.Authority.ADMIN)
+    @PostMapping("/product/uploadImage")
+    public ResponseDTO uploadProductImage(@RequestParam("filename") String filename, @RequestParam("file") MultipartFile file) {
+        logger.info("Received upload request - filename: {}, file: {}", filename, file.getOriginalFilename());
+        return goodsService.uploadProductImage(filename,file);
+    }
+
 
     /* 제품 삭제 */
     @Secured(UserAuthority.Authority.ADMIN)

@@ -14,7 +14,7 @@
     #product-list .card-title,
     #product-list .badge {
         display: inline-block;
-        width: 130px;
+        width: 180px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -103,7 +103,15 @@
                         <label for="addProduct_category" class="form-label">카테고리</label>
                         <input type="text" id="addProduct_category" name="addProduct_category" class="form-control" required>
                     </div>
-
+                    <!-- 이미지 업로드 -->
+                    <div class="mb-3">
+                        <label for="addProduct_image" class="form-label">이미지 업로드</label>
+                        <input type="file" id="addProduct_image" name="addProduct_image" class="form-control" accept="image/*" onchange="previewImage(event)">
+                    </div>
+                    <!-- 이미지 미리보기 -->
+                    <div class="mb-3">
+                        <img id="imagePreview" src="#" alt="Image Preview" style="display: none; max-width: 100%; height: auto;" />
+                    </div>
                 </form>
                 <button class="btn btn-danger" style="width:100%" onclick="addProduct()">Add</button>
             </div>

@@ -45,5 +45,4 @@ public class Cart {
     public void update(CartUpdateRequestDTO cartUpdateRequestDTO){
         this.count = cartUpdateRequestDTO.getCount();
     }
-
 }

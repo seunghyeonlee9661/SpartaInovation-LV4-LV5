@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,13 +23,15 @@ public class GoodsService {
 
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
-    private final CartRepository cartRepository;
+    private final CartRepository cartRepository;    @Autowired
+    private final FTPService ftpService;
 
     @Autowired
-    public GoodsService(UserRepository userRepository, ProductRepository productRepository, CartRepository cartRepository) {
+    public GoodsService(UserRepository userRepository, ProductRepository productRepository, CartRepository cartRepository, FTPService ftpService) {
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.cartRepository = cartRepository;
+        this.ftpService = ftpService;
     }
 
     /*_____________________제품_______________________*/
@@ -36,7 +39,7 @@ public class GoodsService {
     /* 제품 목록 불러오기 : 페이지 */
     public ResponseDTO findProducts(int page, String option, boolean desc) {
         Sort sort = option.isEmpty() ? Sort.unsorted() : Sort.by(desc ? Sort.Direction.DESC : Sort.Direction.ASC, option);
-        Pageable pageable = PageRequest.of(page, 10, sort);
+        Pageable pageable = PageRequest.of(page, 12, sort);
         Page<ProductResponseDTO> products = productRepository.findAll(pageable).map(ProductResponseDTO::new);
         return new ResponseDTO(HttpStatus.OK.value(), "제품 목록 검색 완료", products);
     }
@@ -55,9 +58,23 @@ public class GoodsService {
     @Transactional
     public ResponseDTO createProduct(ProductRequestDTO productRequestDTO){
         try {
-            Product product = new Product(productRequestDTO);
-            productRepository.save(product);
-            return new ResponseDTO(HttpStatus.OK.value(), "제품 정보 생성 완료", null);
+            Product product = productRepository.save(new Product(productRequestDTO));
+            return new ResponseDTO(HttpStatus.OK.value(), "제품 정보 생성 완료", product.getId());
+        } catch (Exception e) {
+            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
+        }
+    }
+
+    /* 제품 이미지 업로드 */
+    @Transactional
+    public ResponseDTO uploadProductImage(String filename,MultipartFile file ) {
+        try {
+            boolean uploaded = ftpService.uploadImageToFtp(filename, file);
+            if (uploaded) {
+                return new ResponseDTO(HttpStatus.OK.value(), "이미지 업로드 성공", null);
+            } else {
+                return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "이미지 업로드 실패", null);
+            }
         } catch (Exception e) {
             return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
         }
@@ -68,6 +85,7 @@ public class GoodsService {
     public ResponseDTO removeProduct(int id){
         try {
             Product product = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("제품을 찾을 수 없습니다!"));
+            cartRepository.deleteByProductId(product.getId());
             productRepository.delete(product);
             return new ResponseDTO(HttpStatus.OK.value(), "제품 정보 삭제 완료", null);
         } catch (Exception e) {
@@ -137,6 +155,4 @@ public class GoodsService {
             return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
         }
     }
-
-
 }

@@ -12,6 +12,11 @@ function addProduct() {
             })
             .then(function(response) {
                 if (response.status === 200) {
+                    var filename = "product/" + response.data;
+                    var file = $('#addProduct_image')[0].files[0];
+                    if(file){
+                        uploadImage(filename,file);
+                    }
                     alert(response.message);
                     location.href = location.href;
                 } else {
@@ -22,6 +27,38 @@ function addProduct() {
                 alert(error.responseText);
             });
     }
+}
+
+function uploadImage(filename,file){
+    var formData = new FormData();
+    formData.append('filename', filename);
+    formData.append('file', file);
+    $.ajax({
+        url: '/api/product/uploadImage',
+        type: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+            console.log('이미지 업로드 성공:', response);
+        },
+        error: function(error) {
+            console.error('이미지 업로드 실패:', error);
+        }
+    });
+}
+
+// 제품 추가 : 이미지 미리보기
+function previewImage(event) {
+    const input = event.target;
+    const reader = new FileReader();
+    reader.onload = function() {
+        const dataURL = reader.result;
+        const imagePreview = document.getElementById('imagePreview');
+        imagePreview.src = dataURL;
+        imagePreview.style.display = 'block';
+    };
+    reader.readAsDataURL(input.files[0]);
 }
 
 // 제품 목록 불러오기
@@ -51,8 +88,9 @@ function setProductList(products) {
     const $productList = $('#product-list');
     $productList.empty();
 
+    // 제품 목록 추가
     products.forEach((product, index) => {
-        if (index % 5 === 0) {
+        if (index % 4 === 0) {
             $productList.append('<div class="row"></div>');
         }
         const $row = $productList.find('.row').last();
@@ -85,7 +123,37 @@ function setProductList(products) {
 
         $row.append($card);
     });
+
+    // 빈 칸 채우기
+    const totalProducts = products.length;
+    const totalRows = Math.ceil(totalProducts / 4);
+    const totalSlots = totalRows * 4;
+
+    if (totalProducts < totalSlots) {
+        const emptySlots = totalSlots - totalProducts;
+        for (let i = 0; i < emptySlots; i++) {
+            const $row = $productList.find('.row').last();
+            $row.append(`
+                <div class="col mb-4"></div>
+            `);
+        }
+    }
+
+    // 빈 줄 채우기
+    if (totalProducts <= 4) {
+        for (let i = totalProducts; i < 8; i++) {
+            if (i % 4 === 0) {
+                $productList.append('<div class="row"></div>');
+            }
+            const $row = $productList.find('.row').last();
+            $row.append(`
+                <div class="col mb-4"></div>
+            `);
+        }
+    }
 }
+
+
 
 // 제품 정보 불러오기
 function getProduct() {
@@ -108,6 +176,27 @@ function getProduct() {
         .catch(function(error) {
             alert(error.responseText);
         });
+}
+
+// 강사 정보 삭제
+function deleteProduct() {
+    if (checkRole()) {
+        if (confirm('삭제하시겠습니까?')) {
+            Request('/api/product?id=' + product_id, 'DELETE', null)
+            .then(function(response) {
+                if (response.status === 200) {
+                    alert(response.message);
+                    window.location.href = '/goods';
+                } else {
+                    alert(response.message);
+                }
+            })
+            .catch(function(error) {
+                console.log(error);
+                alert(error.responseText);
+            });
+        }
+    }
 }
 
 //_______________장바구니_______________________

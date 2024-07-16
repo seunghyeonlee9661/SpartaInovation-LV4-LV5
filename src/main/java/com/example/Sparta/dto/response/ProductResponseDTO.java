@@ -20,6 +20,6 @@ public class ProductResponseDTO {
         this.count = product.getCount();
         this.introduction = product.getIntroduction();
         this.category = product.getCategory();
-        this.img = product.getImg();
+        this.img = null;
     }
 }

@@ -15,10 +15,7 @@ public class GoodsViewController {
 
     /* 강의 및 강사 페이지 */
     @GetMapping("/goods")
-    public String mainPage(@RequestParam(value="page", defaultValue="0") int page,
-                            @RequestParam(value="option", defaultValue="") String option,
-                           @RequestParam(value="desc", defaultValue= "true") boolean desc,
-                           Model model) {
+    public String mainPage(@RequestParam(value="page", defaultValue="0") int page, @RequestParam(value="option", defaultValue="") String option, @RequestParam(value="desc", defaultValue= "true") boolean desc, Model model) {
         model.addAttribute("page",page);
         model.addAttribute("option",option);
         model.addAttribute("desc",desc);
