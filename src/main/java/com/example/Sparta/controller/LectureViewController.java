@@ -17,7 +17,7 @@ public class LectureViewController {
     }
 
     /* 강의 및 강사 페이지 */
-    @GetMapping("/")
+    @GetMapping("/lectures")
     public String mainPage(@RequestParam(value="page", defaultValue="0") int page,
                            @RequestParam(value="category", defaultValue="") String category,
                            @RequestParam(value="option", defaultValue="") String option,
@@ -27,18 +27,18 @@ public class LectureViewController {
         model.addAttribute("category",category);
         model.addAttribute("option",option);
         model.addAttribute("desc",desc);
-        return "main";
+        return "lectures/lectures";
     }
 
     /* 강의 페이지 */
     @GetMapping("/lecture/{id}")
     public String lecturePage(Model model,@PathVariable("id") int id) {
-        return "lecture";
+        return "lectures/lecture";
     }
 
     /* 강사 페이지 */
     @GetMapping("/teacher/{id}")
     public String teacherPage(Model model,@PathVariable("id") int id) {
-        return "teacher";
+        return "lectures/teacher";
     }
 }

@@ -1,5 +1,6 @@
 package com.example.Sparta.handler;
 
+import com.example.Sparta.entity.User;
 import com.example.Sparta.security.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,7 +25,8 @@ public class UserInterceptor implements HandlerInterceptor {
         if (modelAndView != null) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl userDetails) {
-                modelAndView.addObject("user", userDetails.getUser());
+                User user =  userDetails.getUser();
+                modelAndView.addObject("user",user);
             }
         }
     }

@@ -50,6 +50,8 @@ public class User {
     @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.REMOVE)
     private List<Reply> replies = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    private List<Cart> cart = new ArrayList<>();
 
     public User(UserCreateRequestDTO requestDTO, String password) {
         this.email = requestDTO.getEmail();
@@ -58,5 +60,9 @@ public class User {
         this.phone = requestDTO.getPhone();
         this.address = requestDTO.getAddress();
         this.authority = requestDTO.getAuthority();
+    }
+
+    public int getCartSize(){
+        return cart.size();
     }
 }
