@@ -8,6 +8,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+/* 장바구니 반환 */
 @Getter
 public class CartResponseDTO {
     private int id;

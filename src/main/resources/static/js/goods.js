@@ -167,11 +167,9 @@ function getProduct() {
             $('#productPrice').text(product.price);
             $('#productCount').text(product.count);
             $('#productIntroduction').text(product.introduction);
-
             // 이미지 요소 설정
             const $productImage = $('#productImage');
             $productImage.empty(); // 이미지 초기화
-
             if (product.img && product.img.length > 0) {
                 const $img = $('<img>').attr('src', 'data:image/png;base64,' + product.img).addClass('card-img-top').attr('alt', product.name);
                 $productImage.append($img);
@@ -304,7 +302,6 @@ function setCartList(carts) {
 function handleInputChange(itemId) {
     const inputElement = document.getElementById(`quantity-${itemId}`);
     const newCount = parseInt(inputElement.value);
-
     if (!isNaN(newCount)) adjustQuantity(itemId, newCount);
 }
 

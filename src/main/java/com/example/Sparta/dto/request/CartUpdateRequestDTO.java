@@ -3,6 +3,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 
+/* 장바구니 항목 수정 요청 */
 @Getter
 public class CartUpdateRequestDTO {
 

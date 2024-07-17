@@ -3,6 +3,7 @@ package com.example.Sparta.dto.response;
 import com.example.Sparta.entity.Product;
 import lombok.Getter;
 
+/* 제품 정보 반환 */
 @Getter
 public class ProductResponseDTO {
     private int id;

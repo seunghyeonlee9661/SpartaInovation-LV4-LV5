@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("")
-public class GoodsViewController {
+public class ProductsViewController {
 
-    /* 강의 및 강사 페이지 */
+    /* 제품 목록 페이지 */
     @GetMapping("/goods")
     public String mainPage(@RequestParam(value="page", defaultValue="0") int page, @RequestParam(value="option", defaultValue="") String option, @RequestParam(value="desc", defaultValue= "true") boolean desc, Model model) {
         model.addAttribute("page",page);
@@ -22,13 +22,13 @@ public class GoodsViewController {
         return "goods/goods";
     }
 
-    /* 강의 페이지 */
+    /* 제품 정보 페이지 */
     @GetMapping("/product/{id}")
     public String lecturePage(Model model,@PathVariable("id") int id) {
         return "goods/product";
     }
 
-    /* 강사 페이지 */
+    /* 장바구니 페이지 */
     @GetMapping("/cart")
     public String teacherPage() {
         return "goods/cart";

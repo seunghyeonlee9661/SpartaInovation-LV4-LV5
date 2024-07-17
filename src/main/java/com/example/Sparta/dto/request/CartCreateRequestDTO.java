@@ -2,6 +2,7 @@ package com.example.Sparta.dto.request;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
+/* 장바구니 항목 생성 요청 */
 @Getter
 public class CartCreateRequestDTO {
 

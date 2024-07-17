@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import org.springframework.web.multipart.MultipartFile;
 
+/* 제품 정보 생성 요청 */
 @Getter
 public class ProductRequestDTO{
 

@@ -3,10 +3,8 @@ package com.example.Sparta.service;
 import com.example.Sparta.dto.request.*;
 import com.example.Sparta.dto.response.*;
 import com.example.Sparta.entity.*;
-import com.example.Sparta.enums.LectureCategory;
 import com.example.Sparta.repository.*;
 import com.example.Sparta.security.UserDetailsImpl;
-import org.apache.commons.net.util.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
@@ -15,12 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class GoodsService {
+public class ProductsService {
 
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
@@ -28,7 +25,7 @@ public class GoodsService {
     private final FTPService ftpService;
 
     @Autowired
-    public GoodsService(UserRepository userRepository, ProductRepository productRepository, CartRepository cartRepository, FTPService ftpService) {
+    public ProductsService(UserRepository userRepository, ProductRepository productRepository, CartRepository cartRepository, FTPService ftpService) {
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.cartRepository = cartRepository;
@@ -42,7 +39,6 @@ public class GoodsService {
         Sort sort = option.isEmpty() ? Sort.unsorted() : Sort.by(desc ? Sort.Direction.DESC : Sort.Direction.ASC, option);
         Pageable pageable = PageRequest.of(page, 12, sort);
         Page<Product> productsPage = productRepository.findAll(pageable);
-        
         // 리스트에서 이미지 찾아서 저장
         List<ProductResponseDTO> productDTOs = productsPage.getContent().stream()
                 .map(product -> {
@@ -62,6 +58,7 @@ public class GoodsService {
     public ResponseDTO findProduct(int id) {// DB 조회
         try{
             Product product = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("제품을 찾을 수 없습니다!"));
+            /* 이미지 String 받아오기 */
             String imgStr = ftpService.downloadImage("/product/" + String.valueOf(id));
             return new ResponseDTO(HttpStatus.OK.value(), "제품 정보 검색 완료", new ProductResponseDTO(product,imgStr));
         } catch (Exception e) {

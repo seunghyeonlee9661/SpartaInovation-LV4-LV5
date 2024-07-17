@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 
+/* 이미지 전송을 위해 FTP를 사용해 업로드와 다운로드를 진행합니다. */
 @Service
 public class FTPService {
 
@@ -64,12 +65,13 @@ public class FTPService {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         try {
+            // FTP 연결 시도
             ftpClient.connect(ftpServer, ftpPort);
             ftpClient.login(ftpUser, ftpPassword);
             ftpClient.enterLocalPassiveMode();
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
 
-            // FTP 서버의 디렉토리로 이동 (이 부분은 필요에 따라 구현)
+            // FTP 서버의 디렉토리로 이동
             boolean changeDir = ftpClient.changeWorkingDirectory(ftpUploadDir);
             if (!changeDir) {
                 throw new IOException("Failed to change directory on FTP server: " + ftpUploadDir);
@@ -82,11 +84,13 @@ public class FTPService {
                 return null;
             }
 
+            /* 파일을 바이트 배열로 변환*/
             byte[] buffer = new byte[1024];
             int bytesRead;
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, bytesRead);
             }
+            /* 연결 종료 */
             inputStream.close();
             ftpClient.logout();
         } catch (IOException e) {
@@ -101,7 +105,6 @@ public class FTPService {
                 }
             }
         }
-
         byte[] byteEnc64 = Base64.encodeBase64(outputStream.toByteArray());
         return new String(byteEnc64 , "UTF-8");
     }
