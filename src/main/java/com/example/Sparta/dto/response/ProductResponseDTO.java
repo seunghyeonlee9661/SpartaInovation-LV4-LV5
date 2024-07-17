@@ -13,13 +13,13 @@ public class ProductResponseDTO {
     private String category;
     private String img;
 
-    public ProductResponseDTO(Product product) {
+    public ProductResponseDTO(Product product, String img) {
         this.id = product.getId();
         this.name = product.getName();
         this.price = product.getPrice();
         this.count = product.getCount();
         this.introduction = product.getIntroduction();
         this.category = product.getCategory();
-        this.img = null;
+        this.img = img;
     }
 }

@@ -3,6 +3,18 @@
 <head th:replace="layout :: head">
     <!--  헤드 공간  -->
 </head>
+<style>
+    /* 기본 이미지 스타일 */
+    .product-image {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        display : flex;
+        justify-content: center;
+        align-items : center;
+        background-color : white;
+    }
+</style>
 <body>
 <!--  상단바 공간  -->
 <header th:replace="layout :: nav"></header>
@@ -13,31 +25,38 @@
             <button id="backButton" class="btn btn-secondary" style="font-size: 18px; position:absolute; top:2%; left:1%" onclick="goBack()">
                 <i class="bi bi-arrow-left-circle-fill me-2"></i> Back
             </button>
-            <div class="hstack gap-3">
-                <span id="productCategory" class="badge text-bg-primary"></span>
-                <h1 id="productName" class="p-2 display-5 link-body-emphasis mb-1"></h1>
-                <div class="p-1 ms-auto">
-                    <a class="btn btn-secondary me-2" th:onclick="deleteProduct();"><i class="bi bi-trash3"></i></a>
+            <div class="row" style="height:70vh">
+                <div class="col product-image" id="productImage">
                 </div>
-            </div>
-            <hr>
-            <div class="hstack gap-3">
-                <p class="p-2 blog-post-meta m-0">가격 : </p>
-                <p id="productPrice" class="p-2 blog-post-meta m-0"></p>
-                <p class="p-2 blog-post-meta m-0">재고 : </p>
-                <p id="productCount" class="p-2 blog-post-meta m-0"></p>
-            </div>
-            <p id="productIntroduction" class="p-2 blog-post-meta"></p>
-            <div class="hstack gap-3">
-                <div class="p-1 ms-auto">
-                    <div class="input-group">
-                        <button class="btn btn-outline-secondary btn-sm" type="button" onclick="decreaseQuantity()"><i class="bi bi-dash"></i></button>
-                        <input type="text" class="form-control quantity-input" id="quantity-input" value="0" oninput="validateQuantity()" maxlength="99"/>
-                        <button class="btn btn-outline-secondary btn-sm" type="button" onclick="increaseQuantity()"><i class="bi bi-plus"></i></button>
+                <div class="col">
+                    <div class="hstack gap-3">
+                        <h1 id="productName" class="p-2 display-5 link-body-emphasis mb-1" style="width:300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></h1>
+
                     </div>
-                </div>
-                <div class="p-1 ">
-                    <a class="btn btn-secondary me-2" th:onclick="addCart();"><i class="bi bi-plus"></i><i class="bi bi-cart4"></i></a>
+                    <hr>
+                    <div class="hstack gap-1">
+                        <span id="productCategory" class="badge text-bg-primary"></span>
+                        <p class="p-2 blog-post-meta m-0">가격 : </p>
+                        <p id="productPrice" class="p-2 blog-post-meta m-0"></p>
+                        <p class="p-2 blog-post-meta m-0">재고 : </p>
+                        <p id="productCount" class="p-2 blog-post-meta m-0"></p>
+                        <div class="p-1 ms-auto">
+                            <a class="btn btn-secondary me-2" th:onclick="deleteProduct();"><i class="bi bi-trash3"></i></a>
+                        </div>
+                    </div>
+                    <p id="productIntroduction" class="p-2 blog-post-meta"></p>
+                    <div class="hstack gap-3">
+                        <div class="p-1 ms-auto">
+                            <div class="input-group">
+                                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="decreaseQuantity()"><i class="bi bi-dash"></i></button>
+                                <input type="text" class="form-control quantity-input" id="quantity-input" value="0" oninput="validateQuantity()" maxlength="99"/>
+                                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="increaseQuantity()"><i class="bi bi-plus"></i></button>
+                            </div>
+                        </div>
+                        <div class="p-1 ">
+                            <a class="btn btn-secondary me-2" th:onclick="addCart();"><i class="bi bi-plus"></i><i class="bi bi-cart4"></i></a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

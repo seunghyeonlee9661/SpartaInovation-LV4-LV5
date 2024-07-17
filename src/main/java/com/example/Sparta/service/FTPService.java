@@ -2,6 +2,7 @@ package com.example.Sparta.service;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,8 +45,6 @@ public class FTPService {
             System.out.println("Failed to change directory on FTP server: " + ftpUploadDir);
             throw new IOException("Failed to change directory on FTP server: " + ftpUploadDir);
         }
-
-
         // 파일 업로드
         System.out.println("File uploaded start to FTP server: " + ftpUploadDir + filename);
         InputStream inputStream = file.getInputStream();
@@ -57,6 +56,54 @@ public class FTPService {
             System.out.println("Failed to upload file to FTP server");
         }
         return uploaded;
+    }
+
+    public String downloadImage(String filePath) throws IOException {
+        logger.info("FTP download filepath: {}", filePath);
+        FTPClient ftpClient = new FTPClient();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try {
+            ftpClient.connect(ftpServer, ftpPort);
+            ftpClient.login(ftpUser, ftpPassword);
+            ftpClient.enterLocalPassiveMode();
+            ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+
+            // FTP 서버의 디렉토리로 이동 (이 부분은 필요에 따라 구현)
+            boolean changeDir = ftpClient.changeWorkingDirectory(ftpUploadDir);
+            if (!changeDir) {
+                throw new IOException("Failed to change directory on FTP server: " + ftpUploadDir);
+            }
+
+            // 파일 다운로드
+            InputStream inputStream = ftpClient.retrieveFileStream(filePath);
+            if (inputStream == null) {
+                logger.error("File not found");
+                return null;
+            }
+
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+            inputStream.close();
+            ftpClient.logout();
+        } catch (IOException e) {
+            logger.error("Error downloading file from FTP server: {}", e.getMessage());
+            throw e;
+        } finally {
+            if (ftpClient.isConnected()) {
+                try {
+                    ftpClient.disconnect();
+                } catch (IOException ex) {
+                    logger.error("Error disconnecting from FTP server: {}", ex.getMessage());
+                }
+            }
+        }
+
+        byte[] byteEnc64 = Base64.encodeBase64(outputStream.toByteArray());
+        return new String(byteEnc64 , "UTF-8");
     }
 }
 

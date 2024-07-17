@@ -102,16 +102,16 @@ function setProductList(products) {
                             <h5 class="card-title">${product.name}</h5>
                             <p class="card-text">가격: ${product.price}</p>
                             <p class="card-text">수량: ${product.count}</p>
-                            <span class="badge text-bg-primary">${product.category}</span>
+                            ${product.category ? `<span class="badge text-bg-primary">${product.category}</span>` : ''}
                         </div>
                     </div>
                 </a>
             </div>
         `);
 
-        if (product.img) {
+        if (product.img && product.img.length > 0) {
             $card.find('.card-body').prepend(`
-                <img src="${product.img}" class="card-img-top" alt="${product.name}">
+                <img src="data:image/png;base64,${product.img}" class="card-img-top" alt="${product.name}">
             `);
         } else {
             $card.find('.card-body').prepend(`
@@ -153,29 +153,43 @@ function setProductList(products) {
     }
 }
 
-
-
 // 제품 정보 불러오기
 function getProduct() {
     Request('/api/product', 'GET', {
-          id: product_id,
-        })
-        .then(function(response) {
-            if (response.status === 200) {
-                // 강의 정보 작성
-                let product = response.data;
-                $('#productName').text(product.name);
-                $('#productCategory').text(product.category);
-                $('#productPrice').text(product.price);
-                $('#productCount').text(product.count);
-                $('#productIntroduction').text(product.introduction);
+        id: product_id,
+    })
+    .then(function(response) {
+        if (response.status === 200) {
+            // 강의 정보 작성
+            let product = response.data;
+            $('#productName').text(product.name);
+            $('#productCategory').text(product.category);
+            $('#productPrice').text(product.price);
+            $('#productCount').text(product.count);
+            $('#productIntroduction').text(product.introduction);
+
+            // 이미지 요소 설정
+            const $productImage = $('#productImage');
+            $productImage.empty(); // 이미지 초기화
+
+            if (product.img && product.img.length > 0) {
+                const $img = $('<img>').attr('src', 'data:image/png;base64,' + product.img).addClass('card-img-top').attr('alt', product.name);
+                $productImage.append($img);
             } else {
-                alert(response.message);
+                // 이미지가 없는 경우 Bootstrap 아이콘 사용
+                const $icon = $('<i>').addClass('bi bi-image').css({
+                    'font-size': '48px',
+                    'color': '#6c757d'  // Bootstrap의 text-secondary 색상
+                });
+                $productImage.append($icon);
             }
-        })
-        .catch(function(error) {
-            alert(error.responseText);
-        });
+        } else {
+            alert(response.message);
+        }
+    })
+    .catch(function(error) {
+        alert(error.responseText);
+    });
 }
 
 // 강사 정보 삭제

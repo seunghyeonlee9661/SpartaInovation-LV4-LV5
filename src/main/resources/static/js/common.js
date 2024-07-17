@@ -95,6 +95,17 @@ function checkValidity(id) {
     return true;
 }
 
+// byte 배열을 Base64로 변환하는 함수
+function arrayBufferToBase64(buffer) {
+    console.log(buffer);
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+}
+
 //_______________사용자__________________________
 // 회원가입
 function signup() {
