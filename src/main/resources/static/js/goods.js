@@ -29,7 +29,7 @@ function addProduct() {
     }
 }
 
-function uploadImage(filename,file){
+function (filename,file){
     var formData = new FormData();
     formData.append('filename', filename);
     formData.append('file', file);

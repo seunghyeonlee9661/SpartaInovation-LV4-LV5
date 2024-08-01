@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,282 +50,198 @@ public class LectureService {
 
     /* 회원가입 */
     @Transactional
-    public ResponseDTO createUser(UserCreateRequestDTO userCreateRequestDTO){
-        try {
+    public ResponseEntity<String> createUser(UserCreateRequestDTO userCreateRequestDTO){
             if (userRepository.findByEmail(userCreateRequestDTO.getEmail()).isPresent()) throw new IllegalArgumentException("중복된 Email 입니다.");
             User user = new User(userCreateRequestDTO,passwordEncoder.encode(userCreateRequestDTO.getPassword()));
             userRepository.save(user);
-            return new ResponseDTO(HttpStatus.OK.value(), "회원가입 완료", null);
-        }catch (Exception e) {
-            return new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
-        }
+            return ResponseEntity.ok("회원가입 완료");
     }
 
     /* 회원 탈퇴*/
     @Transactional
-    public ResponseDTO removeUser(UserDetailsImpl userDetails, String password){
-        try {
-            if(password == null || password.isEmpty()) return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "올바르지 않은 비밀번호 입니다.", null);
+    public ResponseEntity<String> removeUser(UserDetailsImpl userDetails, String password){
+            if(password == null || password.isEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("올바르지 않은 비밀번호 입니다.");
             User user = userDetails.getUser();
-            if(!passwordEncoder.matches(password,user.getPassword())) return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "비밀번호가 일치하지 않습니다.", null);
+            if(!passwordEncoder.matches(password,user.getPassword())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("비밀번호가 일치하지 않습니다.");
             userRepository.delete(user);
-            return new ResponseDTO(HttpStatus.OK.value(), "회원탈퇴 완료", null);
-        }catch (Exception e) {
-            return new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null);
-        }
+            return ResponseEntity.ok("회원탈퇴 완료");
     }
 
     /*------------------------강사----------------------------------*/
 
     /* 강사 목록 불러오기 */
-    public ResponseDTO findTeachers() {
-        List<Teacher> teachers = teacherRepository.findAll();
-        return new ResponseDTO(HttpStatus.OK.value(), "강사 목록 조회",teachers.stream().map(TeacherResponseDTO::new).toList());
+    public ResponseEntity<List<TeacherResponseDTO>> findTeacherList() {
+        List<TeacherResponseDTO> teachers = teacherRepository.findAll().stream().map(TeacherResponseDTO::new).toList();
+        return ResponseEntity.ok(teachers);
     }
     
     /* 강사 정보 불러오기 : 사용자 아이디 */
-    public ResponseDTO findTeacher(int id) {// DB 조회
-        try{
+    public ResponseEntity<TeacherResponseDTO> findTeacher(int id) {// DB 조회
             Teacher teacher = teacherRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No Teacher"));
-            return new ResponseDTO(HttpStatus.OK.value(), "강사 정보 호출", new TeacherResponseDTO(teacher));
-        }catch (Exception e){
-            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
-        }
+            return ResponseEntity.ok(new TeacherResponseDTO(teacher));
     }
 
     /* 강사 추가 */
     @Transactional
-    public ResponseDTO createLecture(TeacherCreateRequestDTO teacherCreateRequestDTO){
-        try {
-            teacherRepository.save(new Teacher(teacherCreateRequestDTO));
-            return new ResponseDTO(HttpStatus.OK.value(), "강사 정보가 추가되었습니다", null);
-        }catch (Exception e){
-            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
-        }
+    public ResponseEntity<String> createTeacher(TeacherCreateRequestDTO teacherCreateRequestDTO){
+        teacherRepository.save(new Teacher(teacherCreateRequestDTO));
+        return ResponseEntity.ok("강사 정보가 추가되었습니다");
     }
 
     /* 강사 수정 */
     @Transactional
-    public ResponseDTO updateTeacher(int id, TeacherCreateRequestDTO teacherCreateRequestDTO) {
-        try {
-            Teacher teacher = teacherRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("강사가 존재하지 않습니다."));
-            teacher.update(teacherCreateRequestDTO);
-            return new ResponseDTO(HttpStatus.OK.value(), "강사 정보가 수정되었습니다", null);
-        } catch (Exception e) {
-            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
-        }
+    public ResponseEntity<String> updateTeacher(int id, TeacherCreateRequestDTO teacherCreateRequestDTO) {
+        Teacher teacher = teacherRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("강사가 존재하지 않습니다."));
+        teacher.update(teacherCreateRequestDTO);
+        return ResponseEntity.ok("강사 정보가 수정되었습니다");
     }
 
     /* 강사 삭제 */
     @Transactional
-    public ResponseDTO removeTeacher(int id){
-        try {
-            Teacher teacher = teacherRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("강사가 존재하지 않습니다."));
-            teacherRepository.delete(teacher);
-            return new ResponseDTO(HttpStatus.OK.value(), "강사 정보가 삭제되었습니다", null);
-        } catch (Exception e) {
-            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
-        }
+    public ResponseEntity<String> removeTeacher(int id){
+        Teacher teacher = teacherRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("강사가 존재하지 않습니다."));
+        teacherRepository.delete(teacher);
+        return ResponseEntity.ok("강사 정보가 삭제되었습니다");
     }
 
     /*------------------------강의----------------------------------*/
 
     /* 강의 목록 불러오기 : 페이지, 카테고리 */
-    public ResponseDTO findLectures(int page, String category, String option, boolean desc) {
+    public ResponseEntity<Page<LectureResponseDTO>> findLectureList(int page, String category, String option, boolean desc) {
         Sort sort = option.isEmpty() ? Sort.unsorted() : Sort.by(desc ? Sort.Direction.DESC : Sort.Direction.ASC, option);
         Pageable pageable = PageRequest.of(page, 10, sort);
         Page<LectureResponseDTO> lectures;
         if (category.isEmpty()) {
-            System.out.println("카테고리 없음");
             lectures = lectureRepository.findAll(pageable).map(LectureResponseDTO::new);
         } else {
-            System.out.println("카테고리 있음");
             LectureCategory lectureCategory = LectureCategory.valueOf(category);
-            pageable = PageRequest.of(page, 10,sort); // 카테고리에 따라 정렬 추가
             lectures = lectureRepository.findByCategory(lectureCategory, pageable).map(LectureResponseDTO::new);
         }
-        return new ResponseDTO(HttpStatus.OK.value(), "강의 목록 검색 완료", lectures);
+        return ResponseEntity.ok(lectures);
     }
     
     /* 강의 정보 불러오기 */
-    public ResponseDTO findLecture(int id) {// DB 조회
-        try{
+    public ResponseEntity<LectureResponseDTO> findLecture(int id) {// DB 조회
             Lecture lecture = lectureRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No Lecture"));
-            return new ResponseDTO(HttpStatus.OK.value(), "강의 정보 검색 완료", new LectureResponseDTO(lecture));
-        } catch (Exception e) {
-            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
-        }
+            return ResponseEntity.ok(new LectureResponseDTO(lecture));
     }
 
     /* 강의 추가 */
     @Transactional
-    public ResponseDTO createLecture(LectureCreateRequestDTO lectureCreateRequestDTO){
-        try {
-            Teacher teacher = teacherRepository.findById(lectureCreateRequestDTO.getTeacher_id()).orElse(null);
-            Lecture lecture = new Lecture(lectureCreateRequestDTO, teacher);
-            lectureRepository.save(lecture);
-            return new ResponseDTO(HttpStatus.OK.value(), "강의 정보 생성 완료", new LectureResponseDTO(lecture));
-        } catch (Exception e) {
-            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
-        }
+    public ResponseEntity<String> createLecture(LectureCreateRequestDTO lectureCreateRequestDTO){
+        Teacher teacher = teacherRepository.findById(lectureCreateRequestDTO.getTeacher_id()).orElse(null);
+        Lecture lecture = new Lecture(lectureCreateRequestDTO, teacher);
+        lectureRepository.save(lecture);
+        return ResponseEntity.ok("강의 정보 생성 완료");
     }
 
     /* 강의 수정 */
     @Transactional
-    public ResponseDTO updateLecture(int id, LectureCreateRequestDTO lectureCreateRequestDTO){
-        try {
-            Teacher teacher = teacherRepository.findById(lectureCreateRequestDTO.getTeacher_id()).orElse(null);
-            Lecture lecture = lectureRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("강의가 존재하지 않습니다."));
-            lecture.update(lectureCreateRequestDTO, teacher);
-            return new ResponseDTO(HttpStatus.OK.value(), "강의 정보 수정 완료", new LectureResponseDTO(lecture));
-        } catch (Exception e) {
-            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
-        }
+    public ResponseEntity<String> updateLecture(int id, LectureCreateRequestDTO lectureCreateRequestDTO){
+        Teacher teacher = teacherRepository.findById(lectureCreateRequestDTO.getTeacher_id()).orElse(null);
+        Lecture lecture = lectureRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("강의가 존재하지 않습니다."));
+        lecture.update(lectureCreateRequestDTO, teacher);
+        return ResponseEntity.ok("강의 정보 수정 완료");
     }
 
     /* 강의 삭제 */
     @Transactional
-    public ResponseDTO removeLecture(int id){
-        try {
-            Lecture lecture = lectureRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("강의가 존재하지 않습니다."));
-            lectureRepository.delete(lecture);
-            return new ResponseDTO(HttpStatus.OK.value(), "강의 정보 삭제 완료", new LectureResponseDTO(lecture));
-        } catch (Exception e) {
-            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
-        }
+    public ResponseEntity<String> removeLecture(int id){
+        Lecture lecture = lectureRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("강의가 존재하지 않습니다."));
+        lectureRepository.delete(lecture);
+        return ResponseEntity.ok("강의 정보 삭제 완료");
     }
 
     /*------------------------댓글----------------------------------*/
 
     /* 댓글 목록 불러오기 */
-    public ResponseDTO findComments(int id) {// DB 조회
+    public ResponseEntity<List<CommentResponseDTO>> findComments(int id) {// DB 조회
         List<CommentResponseDTO> comments = commentRepository.findByLectureId(id).stream().map(CommentResponseDTO::new).toList();
-        return new ResponseDTO(HttpStatus.OK.value(), "강사 목록 조회",comments);
+        return ResponseEntity.ok(comments);
     }
 
     /* 댓글 추가 */
     @Transactional
-    public ResponseDTO createComment(CommentCreateRequestDTO commentCreateRequestDTO){
-        try {
-            Lecture lecture = lectureRepository.findById(commentCreateRequestDTO.getLecture_id()).orElseThrow(() -> new IllegalArgumentException("강의가 존재하지 않습니다."));
-            User user = userRepository.findById(commentCreateRequestDTO.getUser_id()).orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
-            Comment comment = new Comment(lecture,user, commentCreateRequestDTO);
-            commentRepository.save(comment);
-            return new ResponseDTO(HttpStatus.OK.value(), "댓글 추가 완료",null);
-        } catch (Exception e) {
-            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
-        }
+    public ResponseEntity<String> createComment(CommentCreateRequestDTO commentCreateRequestDTO){
+        Lecture lecture = lectureRepository.findById(commentCreateRequestDTO.getLecture_id()).orElseThrow(() -> new IllegalArgumentException("강의가 존재하지 않습니다."));
+        User user = userRepository.findById(commentCreateRequestDTO.getUser_id()).orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+        Comment comment = new Comment(lecture,user, commentCreateRequestDTO);
+        commentRepository.save(comment);
+        return ResponseEntity.ok("댓글 추가 완료");
     }
 
     /* 댓글 수정 */
     @Transactional
-    public ResponseDTO updateComment(CommentUpdateRequestDTO commentUpdateRequestDTO, UserDetailsImpl userDetails){
-        try {
+    public ResponseEntity<String> updateComment(CommentUpdateRequestDTO commentUpdateRequestDTO, UserDetailsImpl userDetails){
             Comment comment = commentRepository.findById(commentUpdateRequestDTO.getId()).orElseThrow(()-> new NoSuchElementException("댓글이 존재하지 않습니다."));
-            if(userDetails.getUser().getId() != comment.getUser().getId()){
-                return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "사용자의 댓글이 아닙니다.", null);
-            }
+            if(userDetails.getUser().getId() != comment.getUser().getId()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("사용자의 댓글이 아닙니다.");
             comment.update(commentUpdateRequestDTO);
-            return new ResponseDTO(HttpStatus.OK.value(), "댓글 수정 완료", null);
-        } catch (Exception e) {
-            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
-        }
+            return ResponseEntity.ok("댓글 수정 완료");
     }
 
     /* 댓글 삭제 */
     @Transactional
-    public ResponseDTO removeComment(int id, UserDetailsImpl userDetails){
-        try {
-            Comment comment = commentRepository.findById(id).orElseThrow(()-> new NoSuchElementException("댓글이 존재하지 않습니다."));
-            if(userDetails.getUser().getId() != comment.getUser().getId()){
-                return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "사용자의 댓글이 아닙니다.", null);
-            }
-            commentRepository.delete(comment);
-            return new ResponseDTO(HttpStatus.OK.value(), "댓글 삭제 완료", null);
-        } catch (Exception e) {
-            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
-        }
+    public ResponseEntity<String> removeComment(int id, UserDetailsImpl userDetails){
+        Comment comment = commentRepository.findById(id).orElseThrow(()-> new NoSuchElementException("댓글이 존재하지 않습니다."));
+        if(userDetails.getUser().getId() != comment.getUser().getId()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("사용자의 댓글이 아닙니다.");
+        commentRepository.delete(comment);
+        return ResponseEntity.ok("댓글 삭제 완료");
     }
 
     /*------------------------대댓글----------------------------------*/
 
     /* 대댓글 추가 */
     @Transactional
-    public ResponseDTO createReply(ReplyCreateRequestDTO replyCreateRequestDTO){
-        try {
-            Comment comment = commentRepository.findById(replyCreateRequestDTO.getComment_id()).orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다."));
-            User user = userRepository.findById(replyCreateRequestDTO.getUser_id()).orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
-            Reply reply = new Reply(comment,user, replyCreateRequestDTO);
-            replyRepository.save(reply);
-            return new ResponseDTO(HttpStatus.OK.value(), "대댓글 추가 완료",null);
-        } catch (Exception e) {
-            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
-        }
+    public ResponseEntity<String> createReply(ReplyCreateRequestDTO replyCreateRequestDTO){
+        Comment comment = commentRepository.findById(replyCreateRequestDTO.getComment_id()).orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다."));
+        User user = userRepository.findById(replyCreateRequestDTO.getUser_id()).orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+        Reply reply = new Reply(comment,user, replyCreateRequestDTO);
+        replyRepository.save(reply);
+        return ResponseEntity.ok("대댓글 추가 완료");
     }
 
     /* 대댓글 수정 */
     @Transactional
-    public ResponseDTO updateReply(ReplyUpdateRequestDTO replyUpdateRequestDTO, UserDetailsImpl userDetails){
-        try {
-            Reply reply = replyRepository.findById(replyUpdateRequestDTO.getId()).orElseThrow(()-> new NoSuchElementException("대댓글이 존재하지 않습니다."));
-            if(userDetails.getUser().getId() != reply.getUser().getId()){
-                return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "사용자의 대댓글이 아닙니다.", null);
-            }
-            reply.update(replyUpdateRequestDTO);
-            return new ResponseDTO(HttpStatus.OK.value(), "대댓글 수정 완료", null);
-        } catch (Exception e) {
-            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
-        }
+    public ResponseEntity<String> updateReply(ReplyUpdateRequestDTO replyUpdateRequestDTO, UserDetailsImpl userDetails){
+        Reply reply = replyRepository.findById(replyUpdateRequestDTO.getId()).orElseThrow(()-> new NoSuchElementException("대댓글이 존재하지 않습니다."));
+        if(userDetails.getUser().getId() != reply.getUser().getId()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("사용자의 댓글이 아닙니다.");
+        reply.update(replyUpdateRequestDTO);
+        return ResponseEntity.ok("대댓글 수정 완료");
     }
 
     /* 대댓글 삭제 */
     @Transactional
-    public ResponseDTO removeReply(int id, UserDetailsImpl userDetails){
-        try {
-            Reply reply = replyRepository.findById(id).orElseThrow(()-> new NoSuchElementException("대댓글이 존재하지 않습니다."));
-            if(userDetails.getUser().getId() != reply.getUser().getId()){
-                return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "사용자의 대댓글이 아닙니다.", null);
-            }
-            replyRepository.delete(reply);
-            return new ResponseDTO(HttpStatus.OK.value(), "대댓글 삭제 완료", null);
-        } catch (Exception e) {
-            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
-        }
+    public ResponseEntity<String> removeReply(int id, UserDetailsImpl userDetails){
+        Reply reply = replyRepository.findById(id).orElseThrow(()-> new NoSuchElementException("대댓글이 존재하지 않습니다."));
+        if(userDetails.getUser().getId() != reply.getUser().getId()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("사용자의 댓글이 아닙니다.");
+        replyRepository.delete(reply);
+        return ResponseEntity.ok("대댓글 삭제 완료");
     }
 
-    /*------------------------대댓글----------------------------------*/
+    /*------------------------좋아요----------------------------------*/
 
-    /* 대댓글 추가 */
+    /* 좋아요 추가 */
     @Transactional
-    public ResponseDTO findLike(int lecture_id, int user_id){
-        try {
-            Like like = likeRepository.findByLectureIdAndUserId(lecture_id,user_id);
-            if(like == null){
-                return new ResponseDTO(HttpStatus.OK.value(), "true",true);
-            }else{
-                return new ResponseDTO(HttpStatus.OK.value(), "false",false);
-            }
-        } catch (Exception e) {
-            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
+    public ResponseEntity<Boolean> findLike(int lecture_id, int user_id){
+        Like like = likeRepository.findByLectureIdAndUserId(lecture_id,user_id);
+        if(like == null){
+            return ResponseEntity.ok(true);
+        }else{
+            return ResponseEntity.ok(false);
         }
     }
 
     /* 대댓글 수정 */
     @Transactional
-    public ResponseDTO setLike(LikeCreateRequestDTO likeCreateRequestDTO){
-        try {
-            Like like = likeRepository.findByLectureIdAndUserId(likeCreateRequestDTO.getLecture_id(), likeCreateRequestDTO.getUser_id());
-            Lecture lecture = lectureRepository.findById(likeCreateRequestDTO.getLecture_id()).orElseThrow(()-> new NoSuchElementException("강의가 존재하지 않습니다."));
-            if(like == null){
-                User user = userRepository.findById(likeCreateRequestDTO.getUser_id()).orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
-                likeRepository.save(new Like(lecture,user));
-                return new ResponseDTO(HttpStatus.OK.value(), "좋아요 추가", lecture.getLikes().size());
-            }else{
-                likeRepository.delete(like);
-                return new ResponseDTO(HttpStatus.OK.value(), "좋아요 취소", lecture.getLikes().size()-1);
-            }
-        } catch (Exception e) {
-            return new ResponseDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
+    public ResponseEntity<Integer> setLike(LikeCreateRequestDTO likeCreateRequestDTO){
+        Like like = likeRepository.findByLectureIdAndUserId(likeCreateRequestDTO.getLecture_id(), likeCreateRequestDTO.getUser_id());
+        Lecture lecture = lectureRepository.findById(likeCreateRequestDTO.getLecture_id()).orElseThrow(()-> new NoSuchElementException("강의가 존재하지 않습니다."));
+        if(like == null){
+            User user = userRepository.findById(likeCreateRequestDTO.getUser_id()).orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+            likeRepository.save(new Like(lecture,user));
+        }else{
+            likeRepository.delete(like);
         }
+        return ResponseEntity.ok( lecture.getLikes().size());
     }
 }
